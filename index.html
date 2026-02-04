@@ -3,144 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการใบอนุญาตระดับพรีเมียม</title>
+    <title>RegalAuth | Governor Ayu Office</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&family=Charm&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #0B0E14; color: #E0E0E0; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0B0E14; color: #E0E0E0; scroll-behavior: smooth; }
+        .luxury-serif { font-family: 'Playfair Display', serif; }
+        .signature-font { font-family: 'Charm', cursive; }
         .gold-text { color: #D4AF37; }
-        .gold-border { border-color: #D4AF37; }
-        .gold-bg { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.1); }
-        .input-dark { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; }
-        .input-dark:focus { border-color: #D4AF37; outline: none; background: rgba(255, 255, 255, 0.1); }
-        .magic-circle { border: 1px dashed rgba(212, 175, 55, 0.3); border-radius: 50%; animation: rotate 20s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F1D592 50%, #B8860B 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        
+        /* สไตล์ใบอนุญาต (ส่วนที่จะโหลดเป็น PDF) */
+        .license-paper { 
+            background: #ffffff; 
+            color: #1a1a1a; 
+            padding: 60px; 
+            border: 20px double #D4AF37; 
+            position: relative; 
+            width: 800px; /* ล็อกขนาดเพื่อความสวยงามตอนเซฟ */
+            margin: auto;
+        }
+        
+        .input-premium { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(212, 175, 55, 0.2); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .input-premium:focus { 
+            border-color: #D4AF37; 
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            outline: none;
+        }
+
+        @keyframes gold-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #D4AF37 0%, #F1D592 50%, #D4AF37 100%);
+            background-size: 200% auto;
+            animation: gold-shimmer 4s linear infinite;
+        }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen">
 
-    <nav class="border-b border-white/5 py-6 px-8 flex justify-between items-center sticky top-0 bg-[#0B0E14]/80 backdrop-blur-md z-50">
+    <nav class="border-b border-white/5 py-6 px-10 flex justify-between items-center sticky top-0 bg-[#0B0E14]/90 backdrop-blur-xl z-50">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 gold-border border-2 rounded-full flex items-center justify-center">
-                <i data-lucide="shield-check" class="gold-text w-6 h-6"></i>
+            <div class="w-12 h-12 border-2 border-[#D4AF37] rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                <i data-lucide="shield-check" class="text-[#D4AF37] w-6 h-6"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-widest uppercase">สถาบันตรวจสอบ<span class="gold-text">ใบอนุญาต</span></h1>
-                <p class="text-[10px] text-gray-500 tracking-[0.3em]">PREMIUM AUTHENTICATION</p>
+                <h1 class="text-xl font-bold tracking-[0.3em] uppercase">GOVERNOR <span class="gold-text">AYU</span></h1>
+                <p class="text-[9px] text-gray-500 tracking-[0.5em]">OFFICIAL REGISTRY SYSTEM</p>
             </div>
         </div>
-        <div class="hidden md:flex gap-6 text-sm">
-            <a href="#request-section" class="hover:gold-text transition-colors">ยื่นคำขอ</a>
-            <a href="#revoke-section" class="hover:gold-text transition-colors text-red-400">ยกเลิกใบอนุญาต</a>
+        <div class="text-[10px] tracking-[0.2em] text-gray-400 uppercase font-light">
+            Status: <span class="text-emerald-500 font-bold ml-2">● Verified</span>
         </div>
     </nav>
 
-    <section class="flex flex-col items-center justify-center py-20 relative overflow-hidden">
-        <div class="absolute w-[400px] h-[400px] magic-circle"></div>
-        <div class="relative z-10 text-center">
-            <div class="text-[80px] mb-4 opacity-80 luxury-serif italic gold-text">A</div>
-            <p class="text-gray-400 tracking-[0.5em] uppercase text-sm font-light">The Sacred Seal of Registry</p>
-        </div>
-    </section>
-
-    <main class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12">
+    <main class="max-w-4xl mx-auto px-6 pt-20 pb-40">
         
-        <section id="request-section" class="glass-card p-10 rounded-[2rem]">
-            <div class="flex items-center gap-3 mb-8">
-                <i data-lucide="file-plus" class="gold-text"></i>
-                <h3 class="text-2xl font-light">ยื่นคำขอใบอนุญาต</h3>
-            </div>
-            <div class="space-y-5">
+        <div id="form-container" class="glass-card p-12 rounded-[2.5rem] relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 gold-gradient opacity-5 blur-3xl rounded-full"></div>
+            
+            <header class="text-center mb-12">
+                <h2 class="luxury-serif text-4xl gold-text italic mb-4">ยื่นคำขอรับรองใบอนุญาต</h2>
+                <p class="text-gray-500 text-xs tracking-widest uppercase">กรุณากรอกข้อมูลเพื่อรับเอกสารสิทธิ์อย่างเป็นทางการ</p>
+            </header>
+
+            <div class="space-y-8">
                 <div>
-                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">ชื่อผู้ถือครอง / องค์กร</label>
-                    <input type="text" id="reqName" class="w-full p-4 rounded-xl input-dark" placeholder="ระบุชื่อจริงหรือชื่อบริษัท">
+                    <label class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-3 block ml-1">นามผู้รับสิทธิ์สถาบัน / บุคคล</label>
+                    <input type="text" id="clientName" class="w-full input-premium p-5 rounded-2xl text-white placeholder-gray-600" placeholder="ระบุชื่อ-นามสกุล หรือ ชื่อองค์กร">
                 </div>
-                <div>
-                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">ประเภทธุรกิจ</label>
-                    <select id="reqType" class="w-full p-4 rounded-xl input-dark">
-                        <option value="General">ทั่วไป (General)</option>
-                        <option value="Premium">พรีเมียม (Premium)</option>
-                        <option value="Elite">อีลิท (Elite)</option>
-                    </select>
-                </div>
-                <button onclick="requestLicense()" class="w-full py-4 gold-bg text-black font-bold rounded-xl mt-4 hover:opacity-90 transition-all flex justify-center items-center gap-2">
-                    <i data-lucide="send" class="w-4 h-4"></i> ส่งคำขอ
+                
+                <button onclick="issueLicense()" class="w-full py-5 shimmer text-black font-extrabold rounded-2xl transition-all uppercase tracking-[0.3em] text-sm shadow-xl hover:scale-[1.01]">
+                    อนุมัติและออกเอกสารสิทธิ์
                 </button>
             </div>
-        </section>
+        </div>
 
-        <section id="revoke-section" class="glass-card p-10 rounded-[2rem]">
-            <div class="flex items-center gap-3 mb-8">
-                <i data-lucide="trash-2" class="text-red-500"></i>
-                <h3 class="text-2xl font-light">ยกเลิกใบอนุญาต</h3>
-            </div>
-            <div class="space-y-5">
-                <div>
-                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">หมายเลขใบอนุญาตที่ต้องการยกเลิก</label>
-                    <input type="text" id="revId" class="w-full p-4 rounded-xl input-dark" placeholder="ตัวอย่าง: LNC-2026-XXXX-X">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">เหตุผลในการยกเลิก</label>
-                    <textarea id="revReason" class="w-full p-4 rounded-xl input-dark h-[100px]" placeholder="ระบุเหตุผลในการขอยกเลิก..."></textarea>
-                </div>
-                <button onclick="revokeLicense()" class="w-full py-4 border border-red-500/50 text-red-500 font-bold rounded-xl mt-4 hover:bg-red-500/10 transition-all flex justify-center items-center gap-2">
-                    <i data-lucide="x-circle" class="w-4 h-4"></i> ยืนยันการยกเลิก
+        <div id="license-result" class="hidden mt-10">
+            <div class="flex justify-between items-center mb-8 px-2">
+                <button onclick="window.location.reload()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> ทำรายการใหม่
+                </button>
+                <button onclick="downloadPDF()" class="flex items-center gap-3 bg-white text-black px-8 py-3 rounded-full text-xs font-bold hover:bg-[#D4AF37] transition-all shadow-2xl">
+                    <i data-lucide="download-cloud" class="w-4 h-4"></i> DOWNLOAD OFFICIAL PDF
                 </button>
             </div>
-        </section>
 
+            <div id="license-paper" class="license-paper shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+                <div class="text-center border-b-2 border-[#D4AF37] pb-8 mb-10">
+                    <h1 class="luxury-serif text-5xl mb-3 tracking-tight">CERTIFICATE OF AUTHORITY</h1>
+                    <p class="text-[10px] tracking-[0.6em] uppercase text-gray-400 font-bold">The Royal Seal of Excellence</p>
+                </div>
+
+                <div class="text-center my-14">
+                    <p class="text-xs text-gray-400 uppercase tracking-[0.5em] mb-4">ประกาศเพื่อรับรองสิทธิ์แด่</p>
+                    <h2 id="display-name" class="text-5xl font-bold my-8 text-[#1a1a1a] tracking-tight">NAME SURNAME</h2>
+                    <div class="inline-block px-6 py-2 border border-gray-100 bg-gray-50 rounded-lg">
+                        <p class="text-sm font-mono text-[#D4AF37] tracking-[0.2em]" id="display-id">LNC-2026-XXXX-0</p>
+                    </div>
+                </div>
+
+                <div class="text-[12px] leading-[1.8] text-gray-700 space-y-3 mb-16 px-10">
+                    <p>• ใบอนุญาตฉบับนี้มีผลผูกพันทางกฎหมายภายใต้อำนาจการตัดสินใจของ Governor Ayu เป็นที่สิ้นสุด</p>
+                    <p>• ผู้ถือครองได้รับสิทธิ์ในการบริหารจัดการและดำเนินการตามขอบเขตที่ได้รับอนุมัติในระบบสารบบหลัก</p>
+                    <p>• เอกสารฉบับนี้มีอายุการใช้งานถาวร เว้นแต่จะมีการประกาศระงับสิทธิ์เป็นลายลักษณ์อักษรจากส่วนกลาง</p>
+                    <p>• ห้ามมิให้มีการดัดแปลง แก้ไข หรือคัดลอกส่วนใดส่วนหนึ่งของเอกสารนี้เพื่อการทุจริตโดยเด็ดขาด</p>
+                    <p>• ข้อมูลชุดนี้ถูกคุ้มครองและเข้ารหัสไว้ในระบบความปลอดภัยสูงสุดของ Governor Ayu's Private Registry</p>
+                    <p>• ผู้ถือครองต้องยินยอมรับการตรวจสอบสถานะ (Status Audit) ทุกครั้งที่มีการเรียกใช้สิทธิ์ในพื้นที่จำกัด</p>
+                    <p>• สิทธิประโยชน์ทั้งหมดถือเป็นความลับส่วนบุคคล ไม่สามารถทำการซื้อขายหรือเปลี่ยนมือได้โดยไม่ได้รับอนุญาต</p>
+                </div>
+
+                <div class="flex justify-between items-end mt-12 pt-8 border-t border-gray-100">
+                    <div class="text-[9px] text-gray-400 uppercase leading-relaxed tracking-wider">
+                        Issued Date: <span id="display-date" class="text-gray-800 font-bold">04 FEB 2026</span><br>
+                        Digital Signature ID: <span class="font-mono">#GA-OFFICIAL-2026</span><br>
+                        Verified by: <span class="text-[#D4AF37]">AYU GOVERNOR OFFICE</span>
+                    </div>
+                    <div class="text-center w-56 relative">
+                        <div class="signature-font text-5xl mb-1 text-[#1a1a1a] relative z-10">Ayu.</div>
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-24 bg-red-600/5 border-2 border-red-600/10 rounded-full flex items-center justify-center -rotate-12">
+                            <span class="text-[8px] text-red-600 font-bold opacity-30 tracking-tighter uppercase">OFFICIAL SEAL</span>
+                        </div>
+                        <div class="h-[1px] bg-gray-300 w-full mb-2"></div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-800 leading-none">Governor Ayu</p>
+                        <p class="text-[8px] text-gray-400 italic mt-1 uppercase">Chief Administrative Officer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <section class="max-w-6xl mx-auto px-6 mt-20">
-        <h3 class="text-center text-gray-500 uppercase tracking-[0.4em] text-xs mb-10">รายการที่ทำล่าสุด</h3>
-        <div id="logList" class="space-y-4">
-            </div>
-    </section>
-
     <script>
-        // เริ่มต้นไอคอน
+        // เริ่มต้นไอคอน Lucide
         lucide.createIcons();
 
-        function requestLicense() {
-            const name = document.getElementById('reqName').value;
-            if(!name) return alert('กรุณาระบุชื่อผู้ถือครอง');
+        function issueLicense() {
+            const name = document.getElementById('clientName').value;
+            if(!name) {
+                alert('ท่านจำเป็นต้องระบุชื่อผู้รับสิทธิ์เพื่อดำเนินการ');
+                return;
+            }
 
-            const year = 2026;
-            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-            const lncId = `LNC-${year}-${randomStr}-${Math.floor(Math.random()*10)}`;
+            // เจนรหัสสุ่มหรูๆ
+            const lncId = `LNC-2026-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.floor(Math.random()*10)}`;
+            const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            // อัปเดตข้อมูลลงในหน้ากระดาษ
+            document.getElementById('display-name').innerText = name;
+            document.getElementById('display-id').innerText = lncId;
+            document.getElementById('display-date').innerText = date.toUpperCase();
+
+            // เปลี่ยนหน้าด้วย Animation
+            const form = document.getElementById('form-container');
+            const result = document.getElementById('license-result');
             
-            addLog(lncId, name, 'ได้รับใบอนุญาต', 'emerald');
-            alert('สร้างใบอนุญาตสำเร็จ: ' + lncId);
-            document.getElementById('reqName').value = '';
+            form.style.opacity = '0';
+            form.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                form.classList.add('hidden');
+                result.classList.remove('hidden');
+                lucide.createIcons();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
         }
 
-        function revokeLicense() {
-            const id = document.getElementById('revId').value;
-            if(!id) return alert('กรุณาระบุหมายเลขใบอนุญาต');
-
-            addLog(id, 'ไม่ระบุผู้ถือครอง', 'ยกเลิกแล้ว', 'red');
-            alert('ยกเลิกใบอนุญาต ' + id + ' เรียบร้อยแล้ว');
-            document.getElementById('revId').value = '';
-            document.getElementById('revReason').value = '';
-        }
-
-        function addLog(id, owner, status, color) {
-            const list = document.getElementById('logList');
-            const item = document.createElement('div');
-            item.className = `glass-card p-6 rounded-2xl flex justify-between items-center border-l-4 border-${color}-500 transition-all hover:translate-x-2`;
-            item.innerHTML = `
-                <div>
-                    <p class="text-xs text-gray-500 font-mono">${id}</p>
-                    <p class="font-bold text-lg">${owner}</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-${color}-400 text-xs font-bold uppercase tracking-widest">${status}</span>
-                    <p class="text-[10px] text-gray-600 mt-1">${new Date().toLocaleString('th-TH')}</p>
-                </div>
-            `;
-            list.prepend(item);
+        function downloadPDF() {
+            const element = document.getElementById('license-paper');
+            const name = document.getElementById('display-name').innerText;
+            const opt = {
+                margin: 0,
+                filename: `Official-License-${name}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true }, // เพิ่มความละเอียดภาพ
+                jsPDF: { unit: 'px', format: [800, 1100], orientation: 'portrait' }
+            };
+            
+            // ใช้ html2pdf เพื่อบันทึกไฟล์
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>
