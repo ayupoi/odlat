@@ -3,136 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RegalAuth | Premium License Management</title>
+    <title>ระบบจัดการใบอนุญาตระดับพรีเมียม</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FDFCFB; }
-        .luxury-serif { font-family: 'Playfair Display', serif; }
-        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F1D592 50%, #B8860B 100%); }
-        .glass-effect { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .btn-premium { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0B0E14; color: #E0E0E0; }
+        .gold-text { color: #D4AF37; }
+        .gold-border { border-color: #D4AF37; }
+        .gold-bg { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.1); }
+        .input-dark { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; }
+        .input-dark:focus { border-color: #D4AF37; outline: none; background: rgba(255, 255, 255, 0.1); }
+        .magic-circle { border: 1px dashed rgba(212, 175, 55, 0.3); border-radius: 50%; animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="text-[#2D3436]">
+<body class="min-h-screen pb-20">
 
-    <nav class="glass-effect border-b border-gray-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center shadow-2xl">
-                    <i data-lucide="shield-check" class="text-[#D4AF37] w-6 h-6"></i>
-                </div>
-                <h1 class="text-xl font-semibold tracking-[0.2em] uppercase">Regal<span class="text-[#D4AF37]">Auth</span></h1>
+    <nav class="border-b border-white/5 py-6 px-8 flex justify-between items-center sticky top-0 bg-[#0B0E14]/80 backdrop-blur-md z-50">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 gold-border border-2 rounded-full flex items-center justify-center">
+                <i data-lucide="shield-check" class="gold-text w-6 h-6"></i>
             </div>
-            <button onclick="addNewLicense()" class="btn-premium flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3 rounded-full hover:bg-[#D4AF37]">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span class="text-xs font-bold tracking-widest uppercase">Issue New License</span>
-            </button>
+            <div>
+                <h1 class="text-xl font-bold tracking-widest uppercase">สถาบันตรวจสอบ<span class="gold-text">ใบอนุญาต</span></h1>
+                <p class="text-[10px] text-gray-500 tracking-[0.3em]">PREMIUM AUTHENTICATION</p>
+            </div>
+        </div>
+        <div class="hidden md:flex gap-6 text-sm">
+            <a href="#request-section" class="hover:gold-text transition-colors">ยื่นคำขอ</a>
+            <a href="#revoke-section" class="hover:gold-text transition-colors text-red-400">ยกเลิกใบอนุญาต</a>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-8 py-16">
-        <header class="mb-16 flex justify-between items-end">
-            <div>
-                <h2 class="luxury-serif text-5xl mb-4 italic">Registry Dashboard</h2>
-                <div class="h-1 w-24 gold-gradient"></div>
-            </div>
-            <div class="text-right hidden md:block">
-                <p class="text-gray-400 text-xs uppercase tracking-[0.3em]">Current System Status</p>
-                <p class="text-emerald-600 font-semibold text-sm">● Operational & Secure</p>
-            </div>
-        </header>
-
-        <div class="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden border border-gray-50">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-[#FAF9F6] border-b border-gray-100">
-                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Identity Number</th>
-                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Client Holder</th>
-                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Status</th>
-                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="licenseTable">
-                    </tbody>
-            </table>
+    <section class="flex flex-col items-center justify-center py-20 relative overflow-hidden">
+        <div class="absolute w-[400px] h-[400px] magic-circle"></div>
+        <div class="relative z-10 text-center">
+            <div class="text-[80px] mb-4 opacity-80 luxury-serif italic gold-text">A</div>
+            <p class="text-gray-400 tracking-[0.5em] uppercase text-sm font-light">The Sacred Seal of Registry</p>
         </div>
+    </section>
+
+    <main class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12">
+        
+        <section id="request-section" class="glass-card p-10 rounded-[2rem]">
+            <div class="flex items-center gap-3 mb-8">
+                <i data-lucide="file-plus" class="gold-text"></i>
+                <h3 class="text-2xl font-light">ยื่นคำขอใบอนุญาต</h3>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">ชื่อผู้ถือครอง / องค์กร</label>
+                    <input type="text" id="reqName" class="w-full p-4 rounded-xl input-dark" placeholder="ระบุชื่อจริงหรือชื่อบริษัท">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">ประเภทธุรกิจ</label>
+                    <select id="reqType" class="w-full p-4 rounded-xl input-dark">
+                        <option value="General">ทั่วไป (General)</option>
+                        <option value="Premium">พรีเมียม (Premium)</option>
+                        <option value="Elite">อีลิท (Elite)</option>
+                    </select>
+                </div>
+                <button onclick="requestLicense()" class="w-full py-4 gold-bg text-black font-bold rounded-xl mt-4 hover:opacity-90 transition-all flex justify-center items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> ส่งคำขอ
+                </button>
+            </div>
+        </section>
+
+        <section id="revoke-section" class="glass-card p-10 rounded-[2rem]">
+            <div class="flex items-center gap-3 mb-8">
+                <i data-lucide="trash-2" class="text-red-500"></i>
+                <h3 class="text-2xl font-light">ยกเลิกใบอนุญาต</h3>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">หมายเลขใบอนุญาตที่ต้องการยกเลิก</label>
+                    <input type="text" id="revId" class="w-full p-4 rounded-xl input-dark" placeholder="ตัวอย่าง: LNC-2026-XXXX-X">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 uppercase tracking-widest block mb-2">เหตุผลในการยกเลิก</label>
+                    <textarea id="revReason" class="w-full p-4 rounded-xl input-dark h-[100px]" placeholder="ระบุเหตุผลในการขอยกเลิก..."></textarea>
+                </div>
+                <button onclick="revokeLicense()" class="w-full py-4 border border-red-500/50 text-red-500 font-bold rounded-xl mt-4 hover:bg-red-500/10 transition-all flex justify-center items-center gap-2">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i> ยืนยันการยกเลิก
+                </button>
+            </div>
+        </section>
+
     </main>
 
+    <section class="max-w-6xl mx-auto px-6 mt-20">
+        <h3 class="text-center text-gray-500 uppercase tracking-[0.4em] text-xs mb-10">รายการที่ทำล่าสุด</h3>
+        <div id="logList" class="space-y-4">
+            </div>
+    </section>
+
     <script>
-        // ข้อมูลเริ่มต้น
-        let licenses = [
-            { id: 'LNC-2026-X7R2-9', owner: 'Emerald Estate Holdings', status: 'Active', date: '04 Feb 2026' },
-            { id: 'LNC-2026-B1K9-4', owner: 'Royal Sapphire Aviation', status: 'Revoked', date: '12 Jan 2026' }
-        ];
+        // เริ่มต้นไอคอน
+        lucide.createIcons();
 
-        // ฟังก์ชันสร้างเลขใบอนุญาต
-        function generateLicenseID() {
+        function requestLicense() {
+            const name = document.getElementById('reqName').value;
+            if(!name) return alert('กรุณาระบุชื่อผู้ถือครอง');
+
             const year = 2026;
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // ตัดตัวอักษรที่สับสนง่ายออก
-            let randomStr = '';
-            for(let i=0; i<4; i++) randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
-            const checkDigit = Math.floor(Math.random() * 10);
-            return `LNC-${year}-${randomStr}-${checkDigit}`;
+            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const lncId = `LNC-${year}-${randomStr}-${Math.floor(Math.random()*10)}`;
+            
+            addLog(lncId, name, 'ได้รับใบอนุญาต', 'emerald');
+            alert('สร้างใบอนุญาตสำเร็จ: ' + lncId);
+            document.getElementById('reqName').value = '';
         }
 
-        // ฟังก์ชันวาดตารางใหม่
-        function renderTable() {
-            const tbody = document.getElementById('licenseTable');
-            tbody.innerHTML = licenses.map(lnc => `
-                <tr class="group hover:bg-[#FDFCFB] transition-colors border-b border-gray-50 last:border-0">
-                    <td class="px-10 py-8 font-mono text-sm tracking-wider text-gray-600">${lnc.id}</td>
-                    <td class="px-10 py-8">
-                        <div class="font-semibold text-gray-800">${lnc.owner}</div>
-                        <div class="text-[10px] text-gray-400 uppercase mt-1 tracking-wider">Issued: ${lnc.date}</div>
-                    </td>
-                    <td class="px-10 py-8">
-                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                            lnc.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
-                        }">
-                            <span class="w-1.5 h-1.5 rounded-full ${lnc.status === 'Active' ? 'bg-emerald-500' : 'bg-red-500'}"></span>
-                            ${lnc.status}
-                        </span>
-                    </td>
-                    <td class="px-10 py-8 text-right">
-                        ${lnc.status === 'Active' ? 
-                            `<button onclick="revokeLicense('${lnc.id}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shadow-sm">
-                                <i data-lucide="slash" class="w-5 h-5"></i>
-                            </button>` : 
-                            `<i data-lucide="lock" class="inline w-5 h-5 text-gray-200"></i>`
-                        }
-                    </td>
-                </tr>
-            `).join('');
-            lucide.createIcons(); // รีเฟรชไอคอนใหม่ทุกครั้งที่วาดตาราง
+        function revokeLicense() {
+            const id = document.getElementById('revId').value;
+            if(!id) return alert('กรุณาระบุหมายเลขใบอนุญาต');
+
+            addLog(id, 'ไม่ระบุผู้ถือครอง', 'ยกเลิกแล้ว', 'red');
+            alert('ยกเลิกใบอนุญาต ' + id + ' เรียบร้อยแล้ว');
+            document.getElementById('revId').value = '';
+            document.getElementById('revReason').value = '';
         }
 
-        // ฟังก์ชันเพิ่มใบอนุญาตใหม่
-        function addNewLicense() {
-            const names = ["Golden Heritage Ltd.", "Imperial Tech Group", "Oceanic Blue Co.", "Summit Peak Partners"];
-            const newLnc = {
-                id: generateLicenseID(),
-                owner: names[Math.floor(Math.random() * names.length)],
-                status: 'Active',
-                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-            };
-            licenses.unshift(newLnc); // เพิ่มไว้ด้านบนสุด
-            renderTable();
+        function addLog(id, owner, status, color) {
+            const list = document.getElementById('logList');
+            const item = document.createElement('div');
+            item.className = `glass-card p-6 rounded-2xl flex justify-between items-center border-l-4 border-${color}-500 transition-all hover:translate-x-2`;
+            item.innerHTML = `
+                <div>
+                    <p class="text-xs text-gray-500 font-mono">${id}</p>
+                    <p class="font-bold text-lg">${owner}</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-${color}-400 text-xs font-bold uppercase tracking-widest">${status}</span>
+                    <p class="text-[10px] text-gray-600 mt-1">${new Date().toLocaleString('th-TH')}</p>
+                </div>
+            `;
+            list.prepend(item);
         }
-
-        // ฟังก์ชันยกเลิกใบอนุญาต
-        function revokeLicense(id) {
-            if(confirm('Are you sure you want to revoke this license? This action is permanent.')) {
-                licenses = licenses.map(l => l.id === id ? {...l, status: 'Revoked'} : l);
-                renderTable();
-            }
-        }
-
-        // เริ่มต้นการทำงาน
-        renderTable();
     </script>
 </body>
 </html>
