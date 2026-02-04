@@ -3,130 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayu Registry | Official Console</title>
+    <title>Ayu Registry | Official Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Charm&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Charm&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; color: #1a1a1a; }
-        .sidebar { background-color: #2c3e50; transition: all 0.3s; }
-        .paper-sheet { background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-radius: 8px; }
-        .input-line { border-bottom: 1px solid #ccc; background: transparent; outline: none; transition: all 0.3s; width: 100%; padding: 2px 8px; }
-        .input-line:focus { border-bottom-color: #1a1a1a; background: #f9f9f9; }
-        .certificate-frame { border: 20px double #1a1a1a; padding: 40px; position: relative; background: white; width: 100%; max-width: 550px; aspect-ratio: 1/1.414; }
-        .signature { font-family: 'Charm', cursive; }
-        .ref-number { font-family: 'JetBrains Mono', monospace; background: #f4f4f4; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; color: #444; font-size: 0.75rem; font-weight: bold; }
-        .seal-official { border: 4px double #b91c1c; color: #b91c1c; font-weight: bold; text-align: center; transform: rotate(-15deg); position: absolute; opacity: 0.6; pointer-events: none; }
+        :root {
+            --primary: #0f172a;
+            --accent: #f59e0b;
+            --danger: #b91c1c;
+        }
+
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f1f5f9; 
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar & Layout Styles */
+        .sidebar { 
+            background-color: var(--primary);
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 8px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .nav-active {
+            background-color: white !important;
+            color: var(--primary) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Paper & Form Styles */
+        .paper-sheet {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .input-underline {
+            border-bottom: 2px solid #e2e8f0;
+            background: transparent;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .input-underline:focus {
+            border-bottom-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        /* Certificate Styles (พรีเมียมตามแบบ คปภ.) */
+        #print-area {
+            background: white;
+            width: 595px; /* A4 Ratio */
+            height: 842px;
+            padding: 50px;
+            position: relative;
+            border: 15px double #1e293b;
+            margin: auto;
+            color: #1a1a1a;
+            box-sizing: border-box;
+        }
+
+        .inner-border {
+            border: 2px solid #1e293b;
+            height: 100%;
+            padding: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .signature-font { font-family: 'Charm', cursive; }
+
+        .license-no-box {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .seal-red {
+            border: 5px double var(--danger);
+            color: var(--danger);
+            font-weight: 900;
+            text-align: center;
+            transform: rotate(-15deg);
+            position: absolute;
+            opacity: 0.4;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        .watermark-revoked {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 100px;
+            font-weight: 900;
+            color: rgba(185, 28, 28, 0.08);
+            border: 15px solid rgba(185, 28, 28, 0.08);
+            padding: 20px;
+            white-space: nowrap;
+            z-index: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
     </style>
 </head>
 <body class="flex min-h-screen">
 
-    <aside class="sidebar w-72 text-white flex flex-col p-6 space-y-2">
-        <div class="mb-10 text-center">
-            <div class="w-16 h-16 bg-white/10 rounded-full mx-auto flex items-center justify-center mb-4">
-                <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
+    <aside class="sidebar w-80 text-white flex flex-col p-8 sticky top-0 h-screen">
+        <div class="mb-12">
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-2xl flex items-center justify-center mb-5 shadow-xl shadow-amber-500/20">
+                <i data-lucide="shield-check" class="text-slate-900 w-10 h-10"></i>
             </div>
-            <h1 class="font-extrabold tracking-widest text-lg">OFFICIAL CONSOLE</h1>
-            <p class="text-[10px] text-gray-400 uppercase">Governor Ayu's Office</p>
+            <h1 class="font-extrabold tracking-tighter text-2xl">AYU REGISTRY</h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-bold">Official Console v2.0</p>
         </div>
 
-        <button onclick="location.reload()" class="flex items-center gap-3 w-full p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-sm font-semibold">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i> จัดทำคำขอใหม่
-        </button>
-        <button onclick="downloadPDF()" class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-white/10 transition-all text-sm font-semibold">
-            <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PDF
-        </button>
-        <div class="mt-auto pt-6 border-t border-white/10">
-            <button class="flex items-center gap-3 w-full p-3 text-red-400 hover:bg-red-500/10 rounded-lg text-sm transition-all">
-                <i data-lucide="log-out" class="w-4 h-4"></i> ออกจากระบบ
+        <nav class="flex-1">
+            <button onclick="switchTab('issue')" id="nav-issue" class="nav-item nav-active">
+                <i data-lucide="file-plus" class="w-5 h-5"></i> ยื่นขอใบอนุญาต
             </button>
+            <button onclick="switchTab('revoke')" id="nav-revoke" class="nav-item text-slate-400">
+                <i data-lucide="file-x" class="w-5 h-5"></i> ยกเลิก/เพิกถอนสิทธิ์
+            </button>
+            <button onclick="downloadPDF()" class="nav-item text-slate-400 mt-4 border border-white/10">
+                <i data-lucide="download-cloud" class="w-5 h-5"></i> บันทึกเป็นไฟล์ PDF
+            </button>
+        </nav>
+
+        <div class="pt-8 border-t border-white/5 text-center">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest italic">Authorized by Governor Ayu</p>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col">
-        <header class="bg-white border-b border-gray-200 flex px-8">
-            <button onclick="switchTab('issue')" id="tab-issue" class="py-5 px-8 font-extrabold text-sm border-b-4 border-black transition-all">ยื่นคำขอใบอนุญาต</button>
-            <button onclick="switchTab('revoke')" id="tab-revoke" class="py-5 px-8 font-extrabold text-sm border-b-4 border-transparent text-gray-400 hover:text-black transition-all">เพิกถอนสิทธิ์</button>
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white border-b border-slate-200 py-6 px-12 flex justify-between items-center sticky top-0 z-40">
+            <h2 id="header-title" class="text-lg font-black text-slate-800 uppercase tracking-tight">ระบบจัดทำเอกสารสำคัญ</h2>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Current Session</p>
+                    <p class="text-xs font-black text-slate-900" id="current-date">04 FEB 2026</p>
+                </div>
+                <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200">
+                    <i data-lucide="user" class="w-5 h-5 text-slate-600"></i>
+                </div>
+            </div>
         </header>
 
-        <div class="p-10 flex flex-col lg:flex-row gap-10">
-            <div class="flex-1 paper-sheet p-10 animate-fade-in">
-                <div class="mb-8">
-                    <h2 id="form-title" class="text-2xl font-black">แบบคำขอรับใบอนุญาต</h2>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Governor Ayu's Registry System</p>
+        <div class="p-12 grid grid-cols-1 xl:grid-cols-2 gap-12 items-start">
+            
+            <div class="paper-sheet p-10 animate-fade">
+                <div class="mb-10 flex justify-between items-start">
+                    <div>
+                        <h3 id="form-title" class="text-3xl font-black text-slate-900">คำขอรับใบอนุญาต</h3>
+                        <p class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">Electronic Registration Form</p>
+                    </div>
+                    <i data-lucide="edit-3" class="text-slate-200 w-10 h-10"></i>
                 </div>
 
-                <div class="space-y-6 text-sm">
-                    <div class="flex items-center gap-4">
-                        <span class="font-bold min-w-[100px]">ข้าพเจ้า:</span>
-                        <input type="text" id="nameInp" oninput="syncPreview()" class="input-line" placeholder="ระบุชื่อ-นามสกุล">
-                    </div>
-                    <div id="revoke-id-row" class="hidden flex items-center gap-4">
-                        <span class="font-bold min-w-[100px]">เลขที่ใบอนุญาต:</span>
-                        <input type="text" id="idInp" oninput="syncPreview()" class="input-line" placeholder="ตย. 16/86985539">
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="font-bold min-w-[100px]">ประเภทงาน:</span>
-                        <input type="text" class="input-line" value="พรีเมียม (Premium Access)" readonly>
+                <div class="space-y-10">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">ชื่อ-นามสกุล ผู้ขอรับสิทธิ์</label>
+                        <input type="text" id="nameInp" oninput="updatePreview()" class="input-underline text-xl" placeholder="พิมพ์ชื่อที่นี่...">
                     </div>
 
-                    <div class="pt-6 space-y-3">
-                        <p class="font-bold text-gray-400 uppercase text-[10px]">เอกสารประกอบการยื่น:</p>
-                        <label class="flex items-center gap-3 text-xs font-bold">
-                            <input type="checkbox" checked class="w-4 h-4 accent-black"> ยอมรับเงื่อนไขการกำกับดูแล
-                        </label>
-                        <label class="flex items-center gap-3 text-xs font-bold">
-                            <input type="checkbox" checked class="w-4 h-4 accent-black"> รับรองความถูกต้องของข้อมูล
-                        </label>
+                    <div id="revoke-field" class="hidden animate-fade">
+                        <label class="text-[10px] font-black text-danger uppercase tracking-widest mb-2 block">ระบุเลขที่ใบอนุญาตเดิม</label>
+                        <input type="text" id="idInp" oninput="updatePreview()" class="input-underline font-mono" placeholder="ตย. 16/86985539">
                     </div>
 
-                    <div class="pt-10 flex gap-4">
-                        <button onclick="processAction()" id="submitBtn" class="bg-black text-white px-8 py-3 rounded-md font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-all">บันทึกและส่งงาน</button>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-3">สถานะเอกสาร</p>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                <span class="text-xs font-bold text-slate-700">พร้อมดำเนินการ</span>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-3">ประเภทสิทธิ์</p>
+                            <span class="text-xs font-bold text-slate-700">พรีเมียม (Premium)</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <button onclick="processSubmit()" id="mainActionBtn" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-slate-900/40 hover:scale-[1.02] active:scale-95 transition-all">
+                            ยืนยันการออกเอกสารสิทธิ์
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div id="preview-container" class="flex-1 flex flex-col items-center">
-                <p class="text-[10px] font-black uppercase text-gray-400 mb-4 tracking-[0.3em]">Official Document Preview</p>
-                
-                <div id="print-area" class="certificate-frame shadow-2xl">
-                    <div id="revoke-stamp" class="hidden seal-official border-8 p-4 text-5xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">REVOKED</div>
+            <div class="flex flex-col items-center">
+                <div class="mb-4 flex items-center gap-2">
+                    <i data-lucide="eye" class="w-4 h-4 text-slate-400"></i>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Document Preview (A4 Size)</span>
+                </div>
 
-                    <div class="text-center mb-6">
-                        <div class="w-14 h-14 bg-black mx-auto rounded-lg flex items-center justify-center mb-3">
-                            <i id="cert-icon" data-lucide="award" class="text-white w-8 h-8"></i>
+                <div id="print-area" class="shadow-2xl">
+                    <div class="inner-border">
+                        <div id="watermark" class="watermark-revoked hidden">REVOKED</div>
+                        
+                        <div class="text-center relative z-10">
+                            <div class="mb-6 flex justify-center">
+                                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center transform rotate-45">
+                                    <i id="cert-icon" data-lucide="award" class="text-white w-8 h-8 -rotate-45"></i>
+                                </div>
+                            </div>
+                            <h4 id="cert-header" class="text-2xl font-black uppercase tracking-tight text-slate-900">CERTIFICATE OF AUTHORITY</h4>
+                            <p class="text-[9px] font-bold text-slate-400 tracking-[0.4em] uppercase mt-2">Governor Ayu's Registry Office</p>
                         </div>
-                        <h1 id="cert-title" class="text-xl font-extrabold mb-1">ใบอนุญาตประกอบกิจการ</h1>
-                        <p class="text-[9px] font-bold text-gray-400 tracking-widest">Governor Ayu's Office</p>
-                    </div>
 
-                    <div class="text-center my-12 relative z-10">
-                        <p class="text-[10px] uppercase text-gray-400 mb-2">หนังสือฉบับนี้แสดงว่า</p>
-                        <h2 id="prevName" class="text-3xl font-black tracking-tighter mb-4">... ระบุชื่อ ...</h2>
-                        <div class="flex justify-center items-center gap-2">
-                            <span class="text-[9px] font-bold text-gray-400">เลขที่ใบอนุญาต:</span>
-                            <span id="prevID" class="ref-number">Ref No. 16/86985539</span>
+                        <div class="text-center my-10 relative z-10">
+                            <p class="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest italic">ใบอนุญาตฉบับนี้จัดทำขึ้นเพื่อแสดงว่า</p>
+                            <h2 id="prevName" class="text-4xl font-black tracking-tighter text-slate-900 mb-8 border-b-2 border-slate-100 pb-4 inline-block px-10">... NAME SURNAME ...</h2>
+                            
+                            <div class="mt-4 flex flex-col items-center gap-3">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">รหัสอ้างอิงใบอนุญาต (LICENSE NO.)</p>
+                                <div id="prevID" class="license-no-box">16/--------</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="text-[9px] leading-relaxed text-gray-500 mb-12 text-center px-10 border-t border-b border-gray-100 py-6">
-                        เอกสารนี้ออกโดยความเห็นชอบของสำนักงานทะเบียนสูงสุด เพื่อรับรองสถานะภาพพรีเมียมในระบบข้อมูลอิเล็กทรอนิกส์ มีผลบังคับใช้ตามกฎระเบียบของ Governor Ayu นับตั้งแต่วันที่ออกเอกสาร
-                    </div>
-
-                    <div class="flex justify-between items-end px-4 mt-10 relative z-10">
-                        <div class="text-center">
-                            <div class="signature text-xl border-b border-gray-200 px-4">Akira</div>
-                            <p class="text-[8px] font-bold uppercase text-gray-400 mt-1">Secretary</p>
+                        <div class="px-8 text-center relative z-10">
+                            <p id="cert-desc" class="text-[10px] leading-relaxed text-slate-500 italic">
+                                มีสิทธิ์และอำนาจเต็มในการดำเนินการภายใต้ขอบเขตพรีเมียมตามกฎระเบียบที่กำหนดไว้อย่างเป็นทางการ<br>
+                                ข้อมูลนี้ถูกบันทึกเข้าระบบทะเบียนกลางเรียบร้อยแล้ว
+                            </p>
                         </div>
-                        <div class="text-center">
-                            <div class="signature text-2xl border-b border-gray-800 px-6">Ayu.</div>
-                            <p class="text-[8px] font-black uppercase text-gray-900 mt-1 tracking-widest">Governor Ayu</p>
-                        </div>
-                    </div>
 
-                    <div class="seal-official w-24 h-24 rounded-full flex items-center justify-center bottom-12 right-12 text-[8px]">
-                        OFFICIAL<br>REGISTRY<br>SEAL
+                        <div class="flex justify-between items-end px-4 mt-12 relative z-10">
+                            <div class="text-center">
+                                <div class="signature-font text-2xl border-b border-slate-200 px-6 mb-1">Akira</div>
+                                <p class="text-[8px] font-bold uppercase text-slate-400 tracking-widest">Secretary of State</p>
+                            </div>
+                            
+                            <div class="seal-red w-28 h-28 rounded-full flex items-center justify-center text-[8px] leading-tight">
+                                OFFICIAL<br>REGISTRY<br>AUTHENTICATED
+                            </div>
+
+                            <div class="text-center">
+                                <div class="signature-font text-3xl border-b-2 border-slate-900 px-10 mb-1">Ayu.</div>
+                                <p class="text-[8px] font-black uppercase text-slate-900 tracking-[0.2em]">Governor Ayu</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,44 +293,78 @@
     </main>
 
     <script>
+        // Initialize Icons
         lucide.createIcons();
-        let currentMode = 'issue';
+        
+        // State Management
+        let currentTab = 'issue';
+        let generatedRandomID = '';
 
-        function switchTab(mode) {
-            currentMode = mode;
-            const isIssue = mode === 'issue';
+        // Set Today's Date
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        }).toUpperCase();
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const isIssue = tab === 'issue';
+
+            // Update Nav UI
+            document.getElementById('nav-issue').className = isIssue ? 'nav-item nav-active' : 'nav-item text-slate-400';
+            document.getElementById('nav-revoke').className = !isIssue ? 'nav-item nav-active' : 'nav-item text-slate-400';
             
-            // UI Toggle
-            document.getElementById('tab-issue').className = isIssue ? 'py-5 px-8 font-extrabold text-sm border-b-4 border-black transition-all' : 'py-5 px-8 font-extrabold text-sm border-b-4 border-transparent text-gray-400 hover:text-black transition-all';
-            document.getElementById('tab-revoke').className = !isIssue ? 'py-5 px-8 font-extrabold text-sm border-b-4 border-red-600 text-red-600 transition-all' : 'py-5 px-8 font-extrabold text-sm border-b-4 border-transparent text-gray-400 hover:text-black transition-all';
-            
-            document.getElementById('form-title').innerText = isIssue ? 'แบบคำขอรับใบอนุญาต' : 'แบบคำขอยกเลิกใบอนุญาต';
-            document.getElementById('submitBtn').innerText = isIssue ? 'บันทึกและส่งงาน' : 'ยืนยันเพิกถอนสิทธิ์';
-            document.getElementById('submitBtn').className = isIssue ? 'bg-black text-white px-8 py-3 rounded-md font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-all' : 'bg-red-600 text-white px-8 py-3 rounded-md font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-all';
-            
-            document.getElementById('revoke-id-row').classList.toggle('hidden', isIssue);
-            
-            // Preview Update
-            document.getElementById('cert-title').innerText = isIssue ? 'ใบอนุญาตประกอบกิจการ' : 'หนังสือแจ้งเพิกถอนสิทธิ์';
-            document.getElementById('revoke-stamp').classList.toggle('hidden', isIssue);
+            // Update Form UI
+            document.getElementById('form-title').innerText = isIssue ? 'คำขอรับใบอนุญาต' : 'คำขอยกเลิกสิทธิ์';
+            document.getElementById('header-title').innerText = isIssue ? 'ระบบจัดทำใบอนุญาต' : 'ระบบควบคุมและเพิกถอนสิทธิ์';
+            document.getElementById('revoke-field').classList.toggle('hidden', isIssue);
+            document.getElementById('mainActionBtn').innerText = isIssue ? 'ยืนยันการออกเอกสารสิทธิ์' : 'ยืนยันการเพิกถอนสิทธิ์';
+            document.getElementById('mainActionBtn').className = isIssue 
+                ? 'w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-slate-900/40 hover:scale-[1.02] transition-all'
+                : 'w-full bg-red-600 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-red-900/40 hover:scale-[1.02] transition-all';
+
+            // Update Preview UI
+            document.getElementById('cert-header').innerText = isIssue ? 'CERTIFICATE OF AUTHORITY' : 'NOTICE OF REVOCATION';
+            document.getElementById('cert-header').style.color = isIssue ? '#1e293b' : '#b91c1c';
+            document.getElementById('watermark').classList.toggle('hidden', isIssue);
             document.getElementById('cert-icon').setAttribute('data-lucide', isIssue ? 'award' : 'slash');
+            document.getElementById('cert-desc').innerHTML = isIssue 
+                ? 'มีสิทธิ์และอำนาจเต็มในการดำเนินการภายใต้ขอบเขตพรีเมียมตามกฎระเบียบที่กำหนดไว้อย่างเป็นทางการ<br>ข้อมูลนี้ถูกบันทึกเข้าระบบทะเบียนกลางเรียบร้อยแล้ว'
+                : 'ประกาศฉบับนี้มีผลให้สิทธิ์และอำนาจทั้งหมดของผู้ถือใบอนุญาตสิ้นสุดลงทันที<br>ห้ามมิให้แอบอ้างหรือใช้งานระบบพรีเมียมอีกต่อไป';
+            
             lucide.createIcons();
-            syncPreview();
+            updatePreview();
         }
 
-        function syncPreview() {
-            const name = document.getElementById('nameInp').value || '... ระบุชื่อ ...';
-            const id = document.getElementById('idInp').value || '16/86985539';
+        function generateRandomID() {
+            const r = Math.floor(10000000 + Math.random() * 90000000);
+            return `16/${r}`;
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('nameInp').value || '... NAME SURNAME ...';
             
-            document.getElementById('prevName').innerText = name;
-            document.getElementById('prevID').innerText = `Ref No. ${id}`;
+            // Random ID Logic
+            if (!generatedRandomID && document.getElementById('nameInp').value) {
+                generatedRandomID = generateRandomID();
+            } else if (!document.getElementById('nameInp').value) {
+                generatedRandomID = '';
+            }
+
+            document.getElementById('prevName').innerText = name.toUpperCase();
+            
+            if (currentTab === 'issue') {
+                document.getElementById('prevID').innerText = generatedRandomID || '16/--------';
+            } else {
+                document.getElementById('prevID').innerText = document.getElementById('idInp').value || '16/XXXXXXXX';
+            }
         }
 
-        function processAction() {
+        function processSubmit() {
             const name = document.getElementById('nameInp').value;
-            if(!name) return alert('กรุณากรอกชื่อผู้ขอ');
+            if(!name) return alert('กรุณาระบุชื่อผู้ทำรายการ');
             
-            alert(currentMode === 'issue' ? 'ออกใบอนุญาตสำเร็จ!' : 'ดำเนินการเพิกถอนสิทธิ์เรียบร้อยแล้ว');
+            const msg = currentTab === 'issue' ? 'อนุมัติใบอนุญาตพรีเมียมสำเร็จ!' : 'ดำเนินการยกเลิกสิทธิ์เรียบร้อยแล้ว!';
+            alert(msg);
         }
 
         function downloadPDF() {
@@ -179,9 +372,9 @@
             const name = document.getElementById('prevName').innerText;
             const opt = {
                 margin: 0,
-                filename: `Official-Doc-${name}.pdf`,
+                filename: `Official-Document-${name}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3 },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
