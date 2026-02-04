@@ -3,182 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบทะเบียนใบอนุญาตอิเล็กทรอนิกส์ | Governor Ayu</title>
+    <title>ระบบทะเบียน | Governor Ayu's Office</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Charm&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #0B0E14; color: #E0E0E0; scroll-behavior: smooth; }
-        .signature { font-family: 'Charm', cursive; }
-        .official-document { background: #fff; width: 800px; margin: auto; padding: 50px; border: 2px solid #333; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); color: #1a1a1a; }
-        .document-border-inner { border: 1px solid #333; padding: 40px; height: 100%; position: relative; }
-        .thai-seal-red { width: 100px; height: 100px; border: 4px double #b91c1c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #b91c1c; font-weight: bold; font-size: 10px; text-align: center; transform: rotate(-15deg); position: absolute; right: 40px; bottom: 100px; opacity: 0.7; pointer-events: none; }
-        .revoke-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 80px; font-weight: 800; color: rgba(185, 28, 28, 0.1); border: 10px solid rgba(185, 28, 28, 0.1); padding: 20px; pointer-events: none; z-index: 0; white-space: nowrap; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #e5e7eb; color: #374151; }
+        .paper-sheet { background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 4px; border: 1px solid #d1d5db; }
+        .dotted-line { border-bottom: 1px dotted #9ca3af; flex-grow: 1; margin-left: 8px; min-height: 24px; }
+        .signature-font { font-family: 'Charm', cursive; }
+        .tab-active { background-color: white; border-bottom: 3px solid #374151; color: #111827; font-weight: 800; }
+        .official-seal { border: 3px double #b91c1c; color: #b91c1c; transform: rotate(-15deg); opacity: 0.6; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="py-10 px-4">
 
-    <nav class="bg-black/80 backdrop-blur-md border-b border-white/10 py-5 px-10 sticky top-0 z-50 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <i data-lucide="landmark" class="text-amber-500"></i>
-            <span class="font-bold tracking-widest text-lg uppercase">GOVERNOR <span class="text-amber-500">AYU</span></span>
+    <div class="max-w-3xl mx-auto">
+        <div class="flex mb-1 gap-1">
+            <button onclick="switchTab('request')" id="tab-request" class="flex-1 py-4 text-sm tracking-widest uppercase bg-gray-200 text-gray-500 rounded-t-lg transition-all tab-active">
+                ยื่นคำขอใบอนุญาต
+            </button>
+            <button onclick="switchTab('revoke')" id="tab-revoke" class="flex-1 py-4 text-sm tracking-widest uppercase bg-gray-200 text-gray-500 rounded-t-lg transition-all">
+                ยกเลิกใบอนุญาต
+            </button>
         </div>
-        <div class="flex gap-8 text-[10px] tracking-[0.2em] uppercase">
-            <a href="javascript:location.reload()" class="hover:text-amber-500 transition-all">หน้าแรก/ออกใบอนุญาต</a>
-            <a href="#revoke-form-section" class="text-red-500 hover:text-red-400 transition-all">ศูนย์ยกเลิกสิทธิ์</a>
-        </div>
-    </nav>
 
-    <main class="max-w-4xl mx-auto py-16 px-6">
-        
-        <div id="request-section" class="bg-white/5 border border-white/10 p-12 rounded-[2rem] shadow-2xl animate-fade-in">
-            <h2 class="text-center text-2xl font-bold gold-text mb-10 uppercase tracking-widest">ยื่นคำขอรับใบอนุญาต</h2>
-            <div class="space-y-8">
-                <input type="text" id="inputName" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white focus:border-amber-500 outline-none transition-all" placeholder="ระบุชื่อผู้ยื่นคำขอ">
-                <button onclick="issueLicense()" class="w-full py-5 bg-gradient-to-r from-amber-600 to-amber-400 text-black font-extrabold rounded-2xl shadow-xl hover:scale-[1.01] transition-all uppercase tracking-widest">อนุมัติและออกเอกสารสิทธิ์</button>
+        <div id="main-paper" class="paper-sheet p-8 md:p-16 relative overflow-hidden">
+            
+            <div class="text-center mb-10">
+                <h1 id="form-title" class="text-2xl font-extrabold mb-1">แบบคำขอรับใบอนุญาต</h1>
+                <p class="text-xs text-gray-500">สำนักงานทะเบียนพรีเมียม (Governor Ayu's Office)</p>
             </div>
-        </div>
 
-        <div id="revoke-form-section" class="mt-20 bg-red-950/10 border border-red-500/20 p-12 rounded-[2rem]">
-            <h2 class="text-center text-xl font-bold text-red-500 mb-10 uppercase tracking-widest">ศูนย์ทำรายการยกเลิกสิทธิ์</h2>
-            <div class="space-y-6">
-                <input type="text" id="revokeName" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white focus:border-red-500 outline-none" placeholder="ระบุชื่อผู้ถูกเพิกถอนสิทธิ์">
-                <input type="text" id="revokeId" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white focus:border-red-500 outline-none" placeholder="ระบุหมายเลขใบอนุญาต (LNC-...)">
-                <button onclick="issueRevocation()" class="w-full py-5 border border-red-500 text-red-500 font-bold rounded-2xl hover:bg-red-500/10 transition-all uppercase tracking-widest">ยืนยันการเพิกถอนและออกใบประกาศ</button>
+            <div class="space-y-6 text-sm">
+                <div class="flex items-end">
+                    <span>ข้าพเจ้า:</span>
+                    <input type="text" id="nameInput" class="dotted-line outline-none bg-transparent px-2 focus:border-b-2 focus:border-gray-800" placeholder="ระบุชื่อ-นามสกุล">
+                </div>
+                
+                <div id="id-row" class="flex items-end hidden">
+                    <span>หมายเลขใบอนุญาตเดิม:</span>
+                    <input type="text" id="idInput" class="dotted-line outline-none bg-transparent px-2" placeholder="LNC-XXXX-XXXX">
+                </div>
+
+                <div class="flex items-end">
+                    <span>ที่อยู่/สถานประกอบการ:</span>
+                    <div class="dotted-line"></div>
+                </div>
+
+                <div class="mt-10">
+                    <p class="font-bold mb-4">พร้อมคำขอนี้ข้าพเจ้าได้แนบเอกสารหลักฐานต่างๆ ดังนี้:</p>
+                    <div class="space-y-3 ml-4">
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" checked class="w-4 h-4"> <span>บัตรประจำตัวประชาชน / ทะเบียนบ้าน</span>
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" checked class="w-4 h-4"> <span id="check-text">ขอรับรองสถานะภาพในระบบพรีเมียม</span>
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" class="w-4 h-4"> <span>หลักฐานการจดทะเบียนนิติบุคคล (ถ้ามี)</span>
+                        </label>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div id="document-view" class="hidden mt-10">
-            <div class="flex justify-between items-center mb-8">
-                <button onclick="location.reload()" class="text-xs text-gray-500 uppercase tracking-widest">กลับหน้าหลัก</button>
-                <button onclick="downloadPDF()" id="btnDownload" class="px-8 py-3 rounded-full font-bold flex items-center gap-2 shadow-xl transition-all">
-                    <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PDF
+            <div class="mt-20 flex flex-col items-center gap-4">
+                <button onclick="processAction()" id="action-btn" class="bg-slate-700 text-white font-bold py-3 px-12 rounded hover:bg-slate-800 transition-all shadow-md uppercase tracking-widest text-sm">
+                    ส่งงานใบอนุญาต
                 </button>
             </div>
 
-            <div id="document-content" class="official-document">
-                <div class="document-border-inner">
-                    <div id="watermark" class="revoke-watermark hidden">REVOKED</div>
-                    
-                    <div class="flex justify-center mb-6">
-                        <div id="icon-bg" class="w-16 h-16 rounded-lg flex items-center justify-center">
-                            <i id="docIcon" data-lucide="award" class="w-10 h-10 text-white"></i>
-                        </div>
+            <p class="text-[10px] text-gray-400 mt-10 text-center uppercase tracking-tighter">* เอกสารนี้จะถูกประมวลผลโดยระบบอัตโนมัติและตรวจสอบโดย Governor Ayu</p>
+        </div>
+
+        <div id="result-view" class="hidden mt-6 animate-fade-in">
+            <div class="flex justify-end mb-4 gap-2">
+                <button onclick="location.reload()" class="text-xs font-bold text-gray-500 hover:text-black px-4 py-2 uppercase">ทำรายการใหม่</button>
+                <button onclick="downloadPDF()" id="pdf-btn" class="bg-black text-white px-6 py-2 rounded text-xs font-bold shadow-lg">DOWNLOAD PDF</button>
+            </div>
+            
+            <div id="pdf-content" class="paper-sheet p-12 border-2 border-black relative">
+                <div id="revoke-stamp" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 official-seal font-black text-6xl p-4 border-8 z-0">REVOKED</div>
+                
+                <div class="text-center border-b-2 border-black pb-6 mb-8">
+                    <h2 id="resTitle" class="text-3xl font-black uppercase">CERTIFICATE OF AUTHORITY</h2>
+                    <p class="text-[10px] tracking-widest text-gray-500 mt-1">OFFICIAL REGISTRY DOCUMENT</p>
+                </div>
+
+                <div class="text-center my-10 relative z-10">
+                    <p class="text-xs uppercase text-gray-400 mb-2">เอกสารนี้แสดงเพื่อยืนยันว่า</p>
+                    <h3 id="resName" class="text-4xl font-black mb-6">NAME SURNAME</h3>
+                    <div class="inline-block border border-gray-200 bg-gray-50 px-4 py-1 text-xs font-mono font-bold" id="resID">LNC-2026-0000</div>
+                </div>
+
+                <div class="text-[11px] leading-relaxed text-gray-600 space-y-2 mb-12 px-6 border-l-4 border-gray-100 italic">
+                    <p>• เอกสารนี้ออกภายใต้อำนาจของสถาบัน Governor Ayu's Office</p>
+                    <p>• สิทธิ์นี้มีผลผูกพันในระบบสารบบพรีเมียมโดยสมบูรณ์</p>
+                    <p>• การตรวจสอบสามารถทำได้ผ่านระบบ Digital Registry เท่านั้น</p>
+                </div>
+
+                <div class="flex justify-between items-end mt-16">
+                    <div class="text-[9px] text-gray-400 uppercase leading-tight">
+                        Date: <span id="resDate">04 FEB 2026</span><br>
+                        Verify: ayu.registry.gov
                     </div>
-
-                    <div class="text-center space-y-2 mb-10">
-                        <h1 id="docTitle" class="text-2xl font-extrabold text-slate-900 uppercase">ใบอนุญาตประกอบกิจการ</h1>
-                        <p id="docSubTitle" class="text-sm font-bold text-slate-700 italic underline">ใบอนุญาตนี้แสดงว่า</p>
+                    <div class="text-center w-40">
+                        <div class="signature-font text-3xl border-b border-gray-200">Ayu.</div>
+                        <p class="text-[9px] font-bold uppercase mt-1">Governor Ayu</p>
                     </div>
-
-                    <div class="text-center py-8">
-                        <h2 id="docName" class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tighter">ชื่อผู้ถือใบอนุญาต</h2>
-                        <p id="docDesc" class="text-gray-600 text-sm">ได้รับสิทธิ์ภายใต้อำนาจการกำกับดูแลของ Governor Ayu</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-8 text-[11px] text-slate-700 mt-10 border-t border-b border-gray-100 py-6">
-                        <div>
-                            <p class="font-bold uppercase tracking-widest">วันที่ทำรายการ:</p>
-                            <p id="docDate">04 กุมภาพันธ์ 2569</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold uppercase tracking-widest">เลขที่อ้างอิง:</p>
-                            <p id="docID" class="font-mono font-bold tracking-tighter">REF-0000-0000</p>
-                        </div>
-                    </div>
-
-                    <div id="docRules" class="text-[10px] leading-relaxed text-slate-400 mt-8 space-y-1 italic">
-                        </div>
-
-                    <div class="flex justify-between items-end mt-20">
-                        <div class="text-center">
-                            <div class="signature text-3xl mb-1 border-b border-gray-300 px-4">Akira</div>
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Akira (เลขานุการ)</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="signature text-4xl mb-1 border-b border-gray-300 px-8">Ayu.</div>
-                            <p class="text-[9px] font-bold text-gray-800 uppercase tracking-widest">Governor Ayu</p>
-                        </div>
-                    </div>
-
-                    <div id="sealText" class="thai-seal-red">OFFICIAL SEAL<br>REGISTRY<br>VERIFIED</div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        lucide.createIcons();
+        let currentMode = 'request';
 
-        function issueLicense() {
-            const name = document.getElementById('inputName').value;
-            if(!name) return alert('กรุณาระบุชื่อ');
+        function switchTab(mode) {
+            currentMode = mode;
+            const isReq = mode === 'request';
             
-            setupDocument('ISSUED', name, `LNC-2026-${Math.random().toString(36).substring(2,6).toUpperCase()}`);
+            // ปรับปุ่ม Tab
+            document.getElementById('tab-request').className = isReq ? 'flex-1 py-4 text-sm tracking-widest uppercase bg-white text-gray-900 border-b-4 border-gray-800 font-bold' : 'flex-1 py-4 text-sm tracking-widest uppercase bg-gray-100 text-gray-400';
+            document.getElementById('tab-revoke').className = !isReq ? 'flex-1 py-4 text-sm tracking-widest uppercase bg-white text-gray-900 border-b-4 border-red-600 font-bold' : 'flex-1 py-4 text-sm tracking-widest uppercase bg-gray-100 text-gray-400';
+            
+            // ปรับเนื้อหาแบบฟอร์ม
+            document.getElementById('form-title').innerText = isReq ? 'แบบคำขอรับใบอนุญาต' : 'แบบคำขอยกเลิกใบอนุญาต';
+            document.getElementById('action-btn').innerText = isReq ? 'ส่งงานใบอนุญาต' : 'ยืนยันการยกเลิก';
+            document.getElementById('action-btn').className = isReq ? 'bg-slate-700 text-white font-bold py-3 px-12 rounded shadow-md' : 'bg-red-700 text-white font-bold py-3 px-12 rounded shadow-md';
+            document.getElementById('check-text').innerText = isReq ? 'ขอรับรองสถานะภาพในระบบพรีเมียม' : 'ขอยกเลิกสิทธิ์และคืนเอกสารทั้งหมด';
+            document.getElementById('id-row').className = isReq ? 'hidden' : 'flex items-end';
         }
 
-        function issueRevocation() {
-            const name = document.getElementById('revokeName').value;
-            const id = document.getElementById('revokeId').value;
-            if(!name || !id) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        function processAction() {
+            const name = document.getElementById('nameInput').value;
+            if(!name) return alert('กรุณากรอกชื่อในช่องว่าง');
 
-            setupDocument('REVOKED', name, id);
-        }
+            const isReq = currentMode === 'request';
+            const resID = isReq ? `LNC-2026-${Math.random().toString(36).substring(2,6).toUpperCase()}` : document.getElementById('idInput').value;
 
-        function setupDocument(type, name, id) {
-            const isRevoke = type === 'REVOKED';
-            
-            // ปรับสีและเนื้อหาตามสถานะ
-            document.getElementById('docTitle').innerText = isRevoke ? 'ประกาศเพิกถอนใบอนุญาต' : 'ใบอนุญาตประกอบกิจการ';
-            document.getElementById('docTitle').style.color = isRevoke ? '#b91c1c' : '#1a1a1a';
-            document.getElementById('docSubTitle').innerText = isRevoke ? 'หนังสือฉบับนี้มีผลบังคับใช้เพื่อแจ้งว่า' : 'ใบอนุญาตนี้แสดงว่า';
-            document.getElementById('docName').innerText = name;
-            document.getElementById('docID').innerText = id;
-            document.getElementById('docDate').innerText = new Date().toLocaleDateString('th-TH', { day: '2-digit', month: 'long', year: 'numeric' });
-            
-            const desc = isRevoke 
-                ? 'ถูกระงับสิทธิ์และยกเลิกสถานะภาพโดยสมบูรณ์ตามคำสั่งของส่วนกลาง' 
-                : 'ได้รับสิทธิ์ในการบริหารจัดการและดำเนินการภายใต้อำนาจของสถาบัน';
-            document.getElementById('docDesc').innerText = desc;
+            // ตั้งค่าหน้าผลลัพธ์
+            document.getElementById('resName').innerText = name;
+            document.getElementById('resID').innerText = resID || 'REF-REVOKE-001';
+            document.getElementById('resTitle').innerText = isReq ? 'CERTIFICATE OF AUTHORITY' : 'NOTICE OF REVOCATION';
+            document.getElementById('resTitle').style.color = isReq ? '#1a1a1a' : '#b91c1c';
+            document.getElementById('resDate').innerText = new Date().toLocaleDateString('en-GB').toUpperCase();
+            document.getElementById('revoke-stamp').className = isReq ? 'hidden' : 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 official-seal font-black text-6xl p-4 border-8 z-0 block';
+            document.getElementById('pdf-btn').className = isReq ? 'bg-black text-white px-6 py-2 rounded text-xs font-bold' : 'bg-red-700 text-white px-6 py-2 rounded text-xs font-bold';
 
-            // ปรับ Icon
-            const iconBg = document.getElementById('icon-bg');
-            iconBg.className = `w-16 h-16 rounded-lg flex items-center justify-center ${isRevoke ? 'bg-red-600' : 'bg-slate-800'}`;
-            document.getElementById('docIcon').setAttribute('data-lucide', isRevoke ? 'slash' : 'award');
-
-            // ลายน้ำ
-            document.getElementById('watermark').className = isRevoke ? 'revoke-watermark block' : 'hidden';
-
-            // ปุ่มดาวน์โหลด
-            const btn = document.getElementById('btnDownload');
-            btn.className = `px-8 py-3 rounded-full font-bold flex items-center gap-2 shadow-xl text-white ${isRevoke ? 'bg-red-600' : 'bg-emerald-600'}`;
-
-            // กฎระเบียบ
-            const rules = isRevoke 
-                ? '<p>• สิทธิ์ทั้งหมดที่เคยมีมาถือเป็นโมฆะนับจากวันที่ระบุในประกาศ</p><p>• ห้ามมิให้ผู้ที่ถูกระงับสิทธิ์นำชื่อสถาบันไปแอบอ้างใดๆ ทั้งสิ้น</p>'
-                : '<p>• ใบอนุญาตมีผลถาวรจนกว่าจะมีการประกาศระงับสิทธิ์</p><p>• ข้อมูลถูกบันทึกไว้ในระบบความปลอดภัยสูงสุดของ Governor Ayu</p>';
-            document.getElementById('docRules').innerHTML = rules;
-
-            // แสดงหน้าเอกสาร
-            document.getElementById('request-section').classList.add('hidden');
-            document.getElementById('revoke-form-section').classList.add('hidden');
-            document.getElementById('document-view').classList.remove('hidden');
-            lucide.createIcons();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // สลับหน้า
+            document.querySelector('.max-w-3xl > div:first-child').classList.add('hidden');
+            document.getElementById('main-paper').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
         }
 
         function downloadPDF() {
-            const element = document.getElementById('document-content');
-            const name = document.getElementById('docName').innerText;
-            const opt = {
+            const element = document.getElementById('pdf-content');
+            html2pdf().set({
                 margin: 0,
-                filename: `Document-${name}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
+                filename: 'Official-Document.pdf',
+                image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 2 },
-                jsPDF: { unit: 'px', format: [800, 1100], orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
         }
     </script>
 </body>
