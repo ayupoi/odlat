@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegalAuth | Premium License Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FDFCFB; }
+        .luxury-serif { font-family: 'Playfair Display', serif; }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F1D592 50%, #B8860B 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        .btn-premium { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
+    </style>
+</head>
+<body class="text-[#2D3436]">
+
+    <nav class="glass-effect border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center shadow-2xl">
+                    <i data-lucide="shield-check" class="text-[#D4AF37] w-6 h-6"></i>
+                </div>
+                <h1 class="text-xl font-semibold tracking-[0.2em] uppercase">Regal<span class="text-[#D4AF37]">Auth</span></h1>
+            </div>
+            <button onclick="addNewLicense()" class="btn-premium flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3 rounded-full hover:bg-[#D4AF37]">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span class="text-xs font-bold tracking-widest uppercase">Issue New License</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-8 py-16">
+        <header class="mb-16 flex justify-between items-end">
+            <div>
+                <h2 class="luxury-serif text-5xl mb-4 italic">Registry Dashboard</h2>
+                <div class="h-1 w-24 gold-gradient"></div>
+            </div>
+            <div class="text-right hidden md:block">
+                <p class="text-gray-400 text-xs uppercase tracking-[0.3em]">Current System Status</p>
+                <p class="text-emerald-600 font-semibold text-sm">● Operational & Secure</p>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden border border-gray-50">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-[#FAF9F6] border-b border-gray-100">
+                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Identity Number</th>
+                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Client Holder</th>
+                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold">Status</th>
+                        <th class="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 font-bold text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="licenseTable">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // ข้อมูลเริ่มต้น
+        let licenses = [
+            { id: 'LNC-2026-X7R2-9', owner: 'Emerald Estate Holdings', status: 'Active', date: '04 Feb 2026' },
+            { id: 'LNC-2026-B1K9-4', owner: 'Royal Sapphire Aviation', status: 'Revoked', date: '12 Jan 2026' }
+        ];
+
+        // ฟังก์ชันสร้างเลขใบอนุญาต
+        function generateLicenseID() {
+            const year = 2026;
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // ตัดตัวอักษรที่สับสนง่ายออก
+            let randomStr = '';
+            for(let i=0; i<4; i++) randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
+            const checkDigit = Math.floor(Math.random() * 10);
+            return `LNC-${year}-${randomStr}-${checkDigit}`;
+        }
+
+        // ฟังก์ชันวาดตารางใหม่
+        function renderTable() {
+            const tbody = document.getElementById('licenseTable');
+            tbody.innerHTML = licenses.map(lnc => `
+                <tr class="group hover:bg-[#FDFCFB] transition-colors border-b border-gray-50 last:border-0">
+                    <td class="px-10 py-8 font-mono text-sm tracking-wider text-gray-600">${lnc.id}</td>
+                    <td class="px-10 py-8">
+                        <div class="font-semibold text-gray-800">${lnc.owner}</div>
+                        <div class="text-[10px] text-gray-400 uppercase mt-1 tracking-wider">Issued: ${lnc.date}</div>
+                    </td>
+                    <td class="px-10 py-8">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                            lnc.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                        }">
+                            <span class="w-1.5 h-1.5 rounded-full ${lnc.status === 'Active' ? 'bg-emerald-500' : 'bg-red-500'}"></span>
+                            ${lnc.status}
+                        </span>
+                    </td>
+                    <td class="px-10 py-8 text-right">
+                        ${lnc.status === 'Active' ? 
+                            `<button onclick="revokeLicense('${lnc.id}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shadow-sm">
+                                <i data-lucide="slash" class="w-5 h-5"></i>
+                            </button>` : 
+                            `<i data-lucide="lock" class="inline w-5 h-5 text-gray-200"></i>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons(); // รีเฟรชไอคอนใหม่ทุกครั้งที่วาดตาราง
+        }
+
+        // ฟังก์ชันเพิ่มใบอนุญาตใหม่
+        function addNewLicense() {
+            const names = ["Golden Heritage Ltd.", "Imperial Tech Group", "Oceanic Blue Co.", "Summit Peak Partners"];
+            const newLnc = {
+                id: generateLicenseID(),
+                owner: names[Math.floor(Math.random() * names.length)],
+                status: 'Active',
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+            };
+            licenses.unshift(newLnc); // เพิ่มไว้ด้านบนสุด
+            renderTable();
+        }
+
+        // ฟังก์ชันยกเลิกใบอนุญาต
+        function revokeLicense(id) {
+            if(confirm('Are you sure you want to revoke this license? This action is permanent.')) {
+                licenses = licenses.map(l => l.id === id ? {...l, status: 'Revoked'} : l);
+                renderTable();
+            }
+        }
+
+        // เริ่มต้นการทำงาน
+        renderTable();
+    </script>
+</body>
+</html>
