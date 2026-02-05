@@ -3,179 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์ | สำนักงานทะเบียนสูงสุด</title>
+    <title>เข้าสู่ระบบ | สำนักงานทะเบียนสูงสุด</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Charm&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        :root { --gov-blue: #002d5e; --gov-gold: #c5a059; --gov-red: #b91c1c; }
-        body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
+        :root { --gov-blue: #001f3f; --gov-gold: #c5a059; }
+        body { font-family: 'Sarabun', sans-serif; background: #0f172a; overflow-x: hidden; }
         
-        /* Sidebar */
-        .sidebar { background: #001f3f; border-right: 4px solid var(--gov-gold); }
-        .nav-item { @apply flex items-center gap-3 w-full p-4 rounded-lg font-bold text-sm transition-all mb-2 text-white/70; }
-        .nav-active { background-color: var(--gov-gold) !important; color: #000 !important; }
-
-        /* ฟอร์มกรอกข้อมูล */
-        .input-box { @apply w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-900 outline-none font-semibold mb-4 bg-white; }
-        
-        /* ใบอนุญาต (จำลองจาก oic.jpg) */
-        .paper-container {
-            background: white; width: 595px; height: 842px; padding: 40px;
-            margin: auto; border: 1px solid #ccc; box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            position: relative; overflow: hidden;
-        }
-        .cert-border { border: 4px double var(--gov-blue); height: 100%; padding: 30px; position: relative; }
-        .seal-red { border: 3px solid var(--gov-red); color: var(--gov-red); @apply absolute bottom-20 right-20 w-32 h-32 rounded-full flex items-center justify-center text-[10px] font-black rotate-12 opacity-80; }
-        
-        /* บัตรประจำตัว (Digital ID) */
-        .id-card-gov {
-            width: 400px; height: 230px; background: white; border-radius: 10px;
-            border: 1px solid #ddd; position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* สไตล์หน้า Login */
+        #login-screen {
+            background: linear-gradient(rgba(0,31,63,0.9), rgba(0,31,63,0.9)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .signature { font-family: 'Charm', cursive; font-size: 1.5rem; }
+        .gov-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            @apply w-full p-4 rounded-lg text-white outline-none focus:border-gov-gold transition-all text-center tracking-[0.5em] font-black;
+        }
+
+        /* เอกสาร & บัตร (คงเดิมแต่แก้บัค) */
+        .paper-preview { background: white; width: 595px; height: 842px; padding: 40px; border: 1px solid #ccc; box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative; }
+        .id-card-gov { width: 380px; height: 220px; background: white; border-radius: 10px; position: relative; overflow: hidden; border: 2px solid var(--gov-blue); }
+        .seal-red { border: 3px solid #b91c1c; color: #b91c1c; @apply absolute bottom-20 right-20 w-32 h-32 rounded-full flex items-center justify-center text-[10px] font-black rotate-12 opacity-80; }
+        
+        .hidden-system { display: none !important; }
+        .signature { font-family: 'Charm', cursive; font-size: 1.8rem; }
     </style>
 </head>
-<body class="flex min-h-screen">
+<body class="min-h-screen text-slate-200">
 
-    <aside class="sidebar w-72 text-white flex flex-col p-6 sticky top-0 h-screen">
-        <div class="mb-10 text-center">
-            <div class="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center mb-4 border-2 border-gov-gold">
-                <i data-lucide="shield-check" class="text-blue-900 w-10 h-10"></i>
-            </div>
-            <h1 class="font-black text-sm uppercase">สำนักงานทะเบียนสูงสุด</h1>
-            <p class="text-[8px] text-gov-gold font-bold tracking-widest">GOVERNOR AYU ADMINISTRATION</p>
-        </div>
-
-        <nav class="flex-1">
-            <button onclick="switchTab('request')" id="nav-request" class="nav-item nav-active">
-                <i data-lucide="file-plus" class="w-4 h-4"></i> ยื่นคำขอรับใบอนุญาต
-            </button>
-            <button onclick="switchTab('issue')" id="nav-issue" class="nav-item">
-                <i data-lucide="check-square" class="w-4 h-4"></i> อนุมัติใบอนุญาตจริง
-            </button>
-            <button onclick="switchTab('revoke')" id="nav-revoke" class="nav-item">
-                <i data-lucide="x-circle" class="w-4 h-4"></i> เพิกถอนใบอนุญาต
-            </button>
-        </nav>
-
-        <div class="mt-auto border-t border-white/10 pt-4 text-center">
-            <button onclick="downloadPDF()" class="text-gov-gold text-[10px] font-black uppercase hover:text-white transition">
-                <i data-lucide="printer" class="inline w-3 h-3 mb-1"></i> พิมพ์เอกสารราชการ
-            </button>
-        </div>
-    </aside>
-
-    <main class="flex-1 p-8 overflow-y-auto">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-10">
-            
-            <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-blue-900 self-start">
-                <h2 id="form-title" class="text-xl font-black text-blue-900 mb-2">แบบคำขอรับใบอนุญาต (สท.๐๑)</h2>
-                <p class="text-xs text-gray-500 mb-8">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อแสดงผลในเอกสาร</p>
-
-                <div class="space-y-2">
-                    <label class="text-[11px] font-black text-gray-600 uppercase">ชื่อบริษัท / องค์กร</label>
-                    <input type="text" id="compInp" oninput="render()" class="input-box" placeholder="ตย. บริษัท ด็อกเตอร์ มันนี่ จำกัด">
-                    
-                    <label class="text-[11px] font-black text-gray-600 uppercase">ชื่อ-นามสกุล ผู้ขอรับใบอนุญาต</label>
-                    <input type="text" id="nameInp" oninput="render()" class="input-box" placeholder="ระบุชื่อจริง-นามสกุล">
-
-                    <div id="extra-fields" class="hidden">
-                        <label class="text-[11px] font-black text-blue-900 uppercase">เลขทะเบียนใบอนุญาต</label>
-                        <input type="text" id="idInp" oninput="render()" class="input-box" placeholder="ตย. ๑๐๐๐๐๙/๒๕๖๕">
-                    </div>
-
-                    <button onclick="generateAction()" id="actionBtn" class="w-full bg-blue-900 text-white py-4 rounded font-black text-sm uppercase shadow-xl hover:bg-black transition-all mt-4">
-                        ส่งคำขอและออกนามบัตร
-                    </button>
+    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center">
+            <div class="mb-8">
+                <div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center mb-4 border-4 border-gov-gold shadow-[0_0_30px_rgba(197,160,89,0.5)]">
+                    <i data-lucide="shield-alert" class="text-blue-900 w-12 h-12"></i>
                 </div>
+                <h1 class="text-3xl font-black text-white tracking-tighter">CENTRAL REGISTRY</h1>
+                <p class="text-gov-gold font-bold text-xs tracking-[0.3em] mt-2 uppercase">ระบบควบคุมการเข้าถึงส่วนกลาง</p>
+            </div>
 
-                <div id="id-card-container" class="mt-10 hidden">
-                    <p class="text-[10px] font-black text-gray-400 mb-3 uppercase tracking-widest text-center">Digital ID Card (รอดำเนินการ)</p>
-                    <div class="id-card-gov mx-auto border-2 border-blue-900">
-                        <div class="bg-blue-900 p-3 flex justify-between items-center text-white">
-                            <span class="text-[8px] font-black">AYU REGISTRY OFFICIAL</span>
-                            <i data-lucide="qr-code" class="w-4 h-4"></i>
-                        </div>
-                        <div class="p-5 flex gap-4">
-                            <div class="w-20 h-24 bg-gray-100 border flex items-center justify-center">
-                                <i data-lucide="user" class="text-gray-300 w-12 h-12"></i>
+            <div class="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
+                <p class="text-[10px] font-black text-gray-400 mb-6 uppercase tracking-widest">กรุณาระบุรหัสผ่านเจ้าหน้าที่</p>
+                <input type="password" id="passInp" class="gov-input mb-6" placeholder="••••">
+                <button onclick="unlock()" class="w-full bg-gov-gold text-black py-4 rounded-lg font-black text-sm uppercase hover:bg-white transition-all shadow-lg">
+                    ยืนยันตัวตน
+                </button>
+            </div>
+            <p class="text-[9px] text-slate-500 mt-8 font-bold uppercase tracking-[0.2em]">Authorized Personnel Only - 2026</p>
+        </div>
+    </div>
+
+    <div id="main-system" class="flex min-h-screen hidden-system">
+        
+        <aside class="w-72 bg-[#001f3f] border-right border-gov-gold flex flex-col p-6 sticky top-0 h-screen">
+            <div class="mb-10 text-center">
+                <div class="w-12 h-12 bg-white rounded-lg mx-auto flex items-center justify-center mb-3">
+                    <i data-lucide="layout-dashboard" class="text-blue-900 w-6 h-6"></i>
+                </div>
+                <h2 class="font-black text-xs text-white uppercase tracking-widest">Governor Ayu</h2>
+            </div>
+
+            <nav class="flex-1 space-y-2">
+                <button onclick="switchTab('request')" id="btn-request" class="w-full flex items-center gap-3 p-4 rounded-lg font-bold text-xs bg-gov-gold text-black shadow-lg">
+                    <i data-lucide="file-plus" class="w-4 h-4"></i> ส่งคำร้อง (รออนุมัติ)
+                </button>
+                <button onclick="switchTab('issue')" id="btn-issue" class="w-full flex items-center gap-3 p-4 rounded-lg font-bold text-xs text-white/60 hover:bg-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> อนุมัติใบอนุญาตจริง
+                </button>
+                <button onclick="switchTab('revoke')" id="btn-revoke" class="w-full flex items-center gap-3 p-4 rounded-lg font-bold text-xs text-white/60 hover:bg-white/5">
+                    <i data-lucide="slash" class="w-4 h-4"></i> เพิกถอนใบอนุญาต
+                </button>
+            </nav>
+
+            <button onclick="location.reload()" class="mt-auto text-[10px] font-black text-red-400 hover:text-white uppercase flex items-center gap-2 justify-center">
+                <i data-lucide="log-out" class="w-3 h-3"></i> ออกจากระบบ
+            </button>
+        </aside>
+
+        <main class="flex-1 p-10 overflow-y-auto bg-slate-100 text-slate-900">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-12">
+                
+                <div class="space-y-8">
+                    <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-blue-900">
+                        <h3 id="form-title" class="text-2xl font-black text-blue-900 mb-6">แบบคำร้องขออนุมัติสิทธิ์ (สท.๐๑)</h3>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">ชื่อบริษัท / องค์กร</label>
+                                <input type="text" id="compInp" oninput="render()" class="w-full p-4 bg-gray-50 border rounded-lg outline-none focus:border-blue-900 font-bold" placeholder="ระบุชื่อหน่วยงาน">
                             </div>
                             <div>
-                                <h4 id="card-name" class="text-sm font-black text-blue-900">NAME</h4>
-                                <p id="card-comp" class="text-[9px] font-bold text-gray-500 mb-4">COMPANY</p>
-                                <p class="text-[7px] text-gray-400 uppercase">Status</p>
-                                <p id="card-status" class="text-[9px] font-black text-orange-600 uppercase">PENDING</p>
+                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">ชื่อผู้มีอำนาจลงนาม</label>
+                                <input type="text" id="nameInp" oninput="render()" class="w-full p-4 bg-gray-50 border rounded-lg outline-none focus:border-blue-900 font-bold" placeholder="ระบุชื่อจริง-นามสกุล">
+                            </div>
+                            <div id="id-field" class="hidden">
+                                <label class="text-[10px] font-black text-red-600 uppercase block mb-1">เลขทะเบียนอ้างอิง</label>
+                                <input type="text" id="idInp" oninput="render()" class="w-full p-4 bg-gray-50 border border-red-200 rounded-lg outline-none font-mono text-red-700 font-bold" placeholder="๑๖/XXXXXX">
+                            </div>
+                            
+                            <button onclick="submitRequest()" id="actionBtn" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black text-sm uppercase shadow-xl hover:bg-black transition-all">
+                                ส่งคำร้องและบันทึกข้อมูล
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="card-box" class="hidden animate-bounce-short">
+                        <div class="id-card-gov mx-auto shadow-2xl">
+                            <div class="bg-blue-900 p-3 flex justify-between items-center text-white">
+                                <span class="text-[8px] font-black tracking-widest">AYU REGISTRY ID</span>
+                                <i data-lucide="shield-check" class="w-3 h-3"></i>
+                            </div>
+                            <div class="p-4 flex gap-4">
+                                <div class="w-20 h-24 bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
+                                    <i data-lucide="user-round" class="text-slate-300 w-12 h-12"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 id="card-name" class="text-sm font-black text-blue-900">NAME</h4>
+                                    <p id="card-comp" class="text-[9px] font-bold text-slate-500 mb-3">COMPANY</p>
+                                    <div class="grid grid-cols-2 gap-1 border-t pt-2">
+                                        <div>
+                                            <p class="text-[6px] text-slate-400 uppercase">Status</p>
+                                            <p id="card-status" class="text-[8px] font-black text-orange-600">PENDING</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[6px] text-slate-400 uppercase">Ref</p>
+                                            <p id="card-ref" class="text-[8px] font-mono font-bold">16/----</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="downloadCard()" class="w-full mt-4 text-xs font-black text-emerald-700 uppercase flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> บันทึกนามบัตรดิจิทัล
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <div id="print-area" class="paper-preview">
+                        <div class="border-[6px] border-double border-blue-900 h-full p-8 relative">
+                            <div id="watermark" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.05] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-orange-600 text-orange-600">รอดำเนินการ</div>
+                            
+                            <div class="text-center">
+                                <i data-lucide="landmark" class="w-12 h-12 mx-auto text-blue-900 mb-4"></i>
+                                <p class="text-[10px] font-bold text-slate-500">สำนักงานคณะกรรมการทะเบียนสูงสุด (สทส.)</p>
+                                <h2 id="doc-title" class="text-2xl font-black text-blue-900 mt-6 border-b-2 border-blue-900 inline-block px-8">ใบอนุญาตพรีเมียม</h2>
+                                <p class="text-xs font-bold mt-4">ฉบับรับรองสถานะอิเล็กทรอนิกส์</p>
+                            </div>
+
+                            <div class="text-center mt-12 mb-20 space-y-6">
+                                <p class="text-xs font-bold text-slate-500 italic">ขอมอบให้ไว้แก่</p>
+                                <h3 id="view-comp" class="text-2xl font-black text-blue-900">................................................</h3>
+                                <p class="text-[11px] font-bold text-slate-600 leading-relaxed">
+                                    เพื่อแสดงว่าบุคคลและหน่วยงานดังกล่าวได้รับการตรวจสอบและอนุญาต<br>
+                                    ให้เข้าถึงสิทธิประโยชน์ระดับพรีเมียมภายใต้การกำกับดูแลของ Governor Ayu<br>
+                                    <span class="text-black font-black">มีผลบังคับใช้ตามระเบียบงานสารบรรณ ๒๕๖๙</span>
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 text-[9px] font-black text-slate-400 uppercase px-4">
+                                <div id="view-ref">ทะเบียนเลขที่: รอดำเนินการ</div>
+                                <div class="text-right">ออกให้ ณ วันที่: ๕ ก.พ. ๒๕๖๙</div>
+                            </div>
+
+                            <div class="absolute bottom-16 right-12 text-center">
+                                <div class="signature">Ayu.</div>
+                                <p class="text-[10px] font-black">(น.ส อายู มินะโมมะ)</p>
+                                <p class="text-[8px] font-bold text-slate-400">ผู้อำนวยการทะเบียนสูงสุด</p>
+                            </div>
+
+                            <div id="seal" class="seal-red">
+                                รอดำเนินการ<br>OFFICIAL SEAL
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="flex flex-col items-center">
-                <div id="print-area" class="paper-container">
-                    <div class="cert-border">
-                        <div class="text-center">
-                            <div class="w-12 h-12 bg-blue-900 mx-auto rounded flex items-center justify-center mb-2">
-                                <i data-lucide="landmark" class="text-white w-6 h-6"></i>
-                            </div>
-                            <p class="text-[10px] font-bold text-gray-600">สำนักงานคณะกรรมการกำกับและส่งเสริม<br>การประกอบธุรกิจทะเบียนสูงสุด (สทส.)</p>
-                            <h3 id="doc-type" class="text-lg font-black mt-6">ใบอนุญาตพรีเมียม</h3>
-                            <p class="text-xs font-bold">ใบอนุญาตนี้แสดงว่า</p>
-                        </div>
-
-                        <div class="text-center mt-12 mb-20">
-                            <h2 id="view-comp" class="text-xl font-black text-blue-900">บริษัท ................................ จำกัด</h2>
-                            <p class="text-[11px] font-bold text-gray-600 mt-6 leading-relaxed">
-                                ได้รับอนุญาตให้เป็นผู้ประกอบกิจการภายใต้ความดูแลของ Governor Ayu<br>
-                                ตามระเบียบข้อบังคับพรีเมียม พ.ศ. ๒๕๖๙<br>
-                                ประเภทการจัดการข้อมูลส่วนกลาง <span class="font-black text-black">โดยตรง</span>
-                            </p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 text-[9px] font-bold text-gray-500 px-4">
-                            <div>วันออกใบอนุญาต: ๕ กุมภาพันธ์ ๒๕๖๙</div>
-                            <div class="text-right">วันใบอนุญาตหมดอายุ: ๕ กุมภาพันธ์ ๒๕๗๐</div>
-                            <div id="view-id-label">ทะเบียนเลขที่: ๑๖/XXXXXXXX</div>
-                        </div>
-
-                        <div class="absolute bottom-16 right-10 text-center">
-                            <div class="signature mb-[-10px]">Ayu.</div>
-                            <p class="text-[10px] font-black">(น.ส. อายู มินะโมมะ)</p>
-                            <p class="text-[8px] font-bold text-gray-500 italic">ผู้อำนวยการฝ่ายอาวุโส ปฏิบัติหน้าที่แทนนายทะเบียน</p>
-                        </div>
-
-                        <div id="seal-official" class="seal-red">
-                            รอดำเนินการ<br>OFFICIAL SEAL
-                        </div>
-
-                        <p class="absolute bottom-6 left-10 text-[8px] text-gray-400 font-bold italic">** ใบอนุญาตนี้ต้องต่ออายุภายในสองเดือนก่อนใบอนุญาตสิ้นอายุ **</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
         lucide.createIcons();
-        let mode = 'request';
-        let autoID = '';
+        let currentMode = 'request';
+
+        // ระบบ Unlock (Password: 1234 หรืออะไรก็ได้ที่ท่านตั้ง)
+        function unlock() {
+            const pass = document.getElementById('passInp').value;
+            if(pass === '1234') { // ท่านเปลี่ยนรหัสตรงนี้ได้
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-screen').classList.add('hidden-system');
+                    document.getElementById('main-system').classList.remove('hidden-system');
+                }, 800);
+            } else {
+                alert('รหัสผ่านไม่ถูกต้อง - Access Denied');
+                document.getElementById('passInp').value = '';
+            }
+        }
 
         function switchTab(tab) {
-            mode = tab;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
-            document.getElementById(`nav-${tab}`).classList.add('nav-active');
+            currentMode = tab;
+            document.querySelectorAll('nav button').forEach(b => {
+                b.className = "w-full flex items-center gap-3 p-4 rounded-lg font-bold text-xs text-white/60 hover:bg-white/5";
+            });
+            document.getElementById(`btn-${tab}`).className = "w-full flex items-center gap-3 p-4 rounded-lg font-bold text-xs bg-gov-gold text-black shadow-lg";
             
-            // ปรับ UI ตามโหมด
-            document.getElementById('form-title').innerText = (tab === 'request') ? 'แบบคำขอรับใบอนุญาต (สท.๐๑)' : (tab === 'issue') ? 'ใบอนุมัติสิทธิพรีเมียม (สท.๐๒)' : 'คำสั่งเพิกถอนสิทธิ (สท.๐๓)';
-            document.getElementById('extra-fields').classList.toggle('hidden', tab === 'request');
-            document.getElementById('actionBtn').innerText = (tab === 'request') ? 'ส่งคำขอและออกนามบัตร' : 'อนุมัติและประกาศใช้';
-            document.getElementById('actionBtn').className = (tab === 'revoke') ? 'w-full bg-red-700 text-white py-4 rounded font-black text-sm uppercase shadow-xl hover:bg-black mt-4' : 'w-full bg-blue-900 text-white py-4 rounded font-black text-sm uppercase shadow-xl hover:bg-black mt-4';
+            // ปรับฟอร์ม
+            document.getElementById('form-title').innerText = (tab === 'request') ? 'แบบคำร้องขออนุมัติสิทธิ์ (สท.๐๑)' : (tab === 'issue') ? 'ใบอนุมัติสิทธิพรีเมียม (สท.๐๒)' : 'คำสั่งเพิกถอนสิทธิ (สท.๐๓)';
+            document.getElementById('id-field').classList.toggle('hidden', tab === 'request');
+            document.getElementById('actionBtn').innerText = (tab === 'request') ? 'ส่งคำร้องและบันทึกข้อมูล' : (tab === 'issue') ? 'อนุมัติสิทธิถาวร' : 'ยืนยันการเพิกถอน';
+            document.getElementById('actionBtn').style.background = (tab === 'revoke') ? '#b91c1c' : '#001f3f';
             
             render();
         }
@@ -183,57 +224,48 @@
         function render() {
             const name = document.getElementById('nameInp').value || '................................';
             const comp = document.getElementById('compInp').value || '................................';
-            const id = document.getElementById('idInp').value || '๑๖/XXXXXXXX';
+            const id = document.getElementById('idInp').value || '๑๖/XXXXXX';
+
+            document.getElementById('view-comp').innerText = comp;
+            document.getElementById('view-ref').innerText = `ทะเบียนเลขที่: ${currentMode === 'request' ? 'รอดำเนินการ' : id}`;
+            document.getElementById('doc-title').innerText = currentMode === 'revoke' ? 'คำสั่งเพิกถอนสิทธิ' : 'ใบอนุญาตพรีเมียม';
+            document.getElementById('doc-title').style.color = currentMode === 'revoke' ? '#b91c1c' : '#001f3f';
             
-            if(!autoID && name !== '................................') {
-                autoID = `๑๖/${Math.floor(100000 + Math.random() * 900000)}/๒๕๖๙`;
+            // Watermark & Seal
+            const wm = document.getElementById('watermark');
+            const seal = document.getElementById('seal');
+            if(currentMode === 'request') {
+                wm.innerText = 'รอดำเนินการ'; wm.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.05] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-orange-600 text-orange-600';
+                seal.innerHTML = 'รอดำเนินการ<br>PENDING'; seal.style.color = '#ea580c'; seal.style.borderColor = '#ea580c';
+            } else if(currentMode === 'issue') {
+                wm.classList.add('hidden');
+                seal.innerHTML = 'อนุมัติแล้ว<br>APPROVED'; seal.style.color = '#b91c1c'; seal.style.borderColor = '#b91c1c';
+            } else {
+                wm.innerText = 'เพิกถอนแล้ว'; wm.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.1] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-black text-black';
+                seal.innerHTML = 'โมฆะ<br>VOID'; seal.style.color = '#000'; seal.style.borderColor = '#000';
             }
 
-            // Update Doc
-            document.getElementById('view-comp').innerText = comp.includes('บริษัท') ? comp : `บริษัท ${comp} จำกัด`;
-            document.getElementById('view-id-label').innerText = `ทะเบียนเลขที่: ${mode === 'request' ? 'รอดำเนินการ' : id}`;
-            document.getElementById('doc-type').innerText = (mode === 'revoke') ? 'ประกาศเพิกถอนสิทธิ' : 'ใบอนุญาตพรีเมียม';
-            document.getElementById('doc-type').style.color = (mode === 'revoke') ? '#b91c1c' : '#002d5e';
-            
-            // Update Seal
-            const seal = document.getElementById('seal-official');
-            seal.innerHTML = (mode === 'request') ? 'รอดำเนินการ<br>PENDING' : (mode === 'issue') ? 'อนุมัติแล้ว<br>APPROVED' : 'เพิกถอนแล้ว<br>VOID';
-            seal.style.borderColor = (mode === 'request') ? '#ea580c' : (mode === 'issue') ? '#b91c1c' : '#000';
-            seal.style.color = seal.style.borderColor;
-
-            // Update Card Preview
+            // Card
             document.getElementById('card-name').innerText = name.toUpperCase();
             document.getElementById('card-comp').innerText = comp.toUpperCase();
-            document.getElementById('card-status').innerText = (mode === 'request') ? 'PENDING' : (mode === 'issue') ? 'VERIFIED' : 'REVOKED';
-            document.getElementById('card-status').className = `text-[9px] font-black uppercase ${(mode === 'issue') ? 'text-blue-900' : 'text-orange-600'}`;
-
-            lucide.createIcons();
+            document.getElementById('card-status').innerText = currentMode === 'request' ? 'PENDING' : currentMode === 'issue' ? 'VERIFIED' : 'REVOKED';
+            document.getElementById('card-status').style.color = currentMode === 'issue' ? '#001f3f' : '#ea580c';
+            document.getElementById('card-ref').innerText = currentMode === 'request' ? '16/----' : id;
         }
 
-        function generateAction() {
-            const name = document.getElementById('nameInp').value;
-            if(!name) return alert('กรุณาระบุข้อมูลก่อนดำเนินการ');
-
-            if(mode === 'request') {
-                document.getElementById('id-card-container').classList.remove('hidden');
-                alert('ส่งคำขอสำเร็จ! ท่านสามารถบันทึกบัตรประจำตัวเบื้องต้นได้แล้ว');
-            } else if(mode === 'issue') {
-                alert('อนุมัติใบอนุญาตเรียบร้อย เอกสารมีผลบังคับใช้ทันที');
+        function submitRequest() {
+            if(!document.getElementById('nameInp').value) return alert('กรุณาระบุชื่อ');
+            if(currentMode === 'request') {
+                document.getElementById('card-box').classList.remove('hidden');
+                alert('ส่งคำร้องเข้าสู่ระบบฐานข้อมูลส่วนกลางเรียบร้อย');
             } else {
-                alert('เพิกถอนสิทธิเรียบร้อย ข้อมูลถูกลบจากระบบส่วนกลาง');
+                alert('ดำเนินการบันทึกข้อมูลเรียบร้อย');
             }
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('print-area');
-            const name = document.getElementById('nameInp').value || 'Document';
-            html2pdf().set({
-                margin: 0,
-                filename: `Official-Doc-${name}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            }).from(element).save();
+        function downloadCard() {
+            const element = document.getElementById('card-box').querySelector('.id-card-gov');
+            html2pdf().set({ margin: 0.1, filename: 'Registry-ID.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 4 }, jsPDF: { unit: 'in', format: [4.5, 2.5], orientation: 'landscape' } }).from(element).save();
         }
     </script>
 </body>
