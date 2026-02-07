@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme Governor Ayu Console v4.0</title>
+    <title>Supreme Governor Ayu | Universal Management System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -11,430 +11,386 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        /* --- [1] ROOT & GLOBAL STYLES --- */
         :root { 
             --gov-blue: #001f3f; 
             --gov-gold: #c5a059; 
-            --cute-green: #a5d6a7;
-            --cute-pink: #ffc1e3;
+            --danger: #ef4444;
+            --success: #10b981;
         }
 
-        /* Base & Scrollbar */
-        body { font-family: 'Sarabun', sans-serif; background: #0f172a; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: var(--gov-gold); border-radius: 10px; }
-
-        /* Login Screen Animation */
-        #login-screen {
-            background: radial-gradient(circle at center, #001f3f 0%, #000 100%);
-            transition: all 1s ease-in-out;
-        }
-
-        /* Typography */
+        body { font-family: 'Sarabun', sans-serif; background: #0f172a; margin: 0; overflow: hidden; }
         .mali { font-family: 'Mali', cursive; }
         .charm { font-family: 'Charm', cursive; }
         .mono { font-family: 'JetBrains+Mono', monospace; }
 
-        /* Sidebar & Navigation */
-        .sidebar { background: #000c1a; border-right: 3px solid var(--gov-gold); transition: width 0.3s; }
-        .nav-btn { @apply flex items-center gap-3 w-full p-4 rounded-xl font-bold text-xs transition-all mb-2 text-white/40 hover:bg-white/5; }
-        .nav-active { background: var(--gov-gold) !important; color: #000 !important; box-shadow: 0 0 20px rgba(197, 160, 89, 0.3); }
-
-        /* Form Styling (App Style) */
-        .app-form { background: #f8fafc; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
-        .form-row { display: grid; grid-template-columns: 120px 1fr; border-bottom: 1px solid #e2e8f0; background: white; }
-        .form-label { @apply p-4 text-[11px] font-black text-slate-400 uppercase bg-slate-50 border-right border-slate-100; }
-        .form-input { @apply p-4 w-full outline-none text-sm font-bold text-slate-800 bg-white focus:bg-blue-50/30; }
-
-        /* Document Previews */
-        .doc-container { 
-            perspective: 1000px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 40px; 
-            padding-bottom: 100px;
+        /* --- [2] LOGIN & SECURITY ANIMATION --- */
+        #auth-layer {
+            background: radial-gradient(circle at center, #001f3f 0%, #000 100%);
+            z-index: 1000; transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* --- [3] LAYOUT STRUCTURE --- */
+        .app-container { display: flex; height: 100vh; width: 100vw; opacity: 0; transition: opacity 1s; }
+        .sidebar { width: 320px; background: #000c1a; border-right: 4px solid var(--gov-gold); display: flex; flex-direction: column; }
+        .workspace { flex: 1; background: #f8fafc; overflow-y: auto; padding: 40px; color: #1e293b; }
+
+        /* --- [4] NAVIGATION --- */
+        .nav-btn {
+            @apply flex items-center gap-4 w-full p-4 mb-3 rounded-2xl font-black text-xs transition-all uppercase tracking-widest text-white/40;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-active { background: var(--gov-gold) !important; color: #000 !important; shadow-lg; }
+
+        /* --- [5] DOCUMENT PREVIEW (A4) --- */
+        .paper-view {
+            width: 595px; height: 842px; background: white; position: relative;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.2); zoom: 0.8; transform-origin: top center;
+        }
+        .lic-frame { border: 15px double var(--gov-blue); height: 100%; padding: 40px; position: relative; }
         
-        /* A4 Paper Styles */
-        .paper { 
-            width: 595px; height: 842px; background: white; padding: 50px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3); position: relative; zoom: 0.85;
-            transform-origin: top center;
+        /* Watermark System */
+        .watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 7rem; font-weight: 900; opacity: 0.05; pointer-events: none;
+            border: 10px solid; padding: 20px; white-space: nowrap;
+        }
+        .wm-approved { color: #10b981; border-color: #10b981; }
+        .wm-revoked { color: #ef4444; border-color: #ef4444; opacity: 0.15 !important; }
+
+        /* --- [6] LOAN STYLE (CUTE) --- */
+        .loan-bg { background: #e8f5e9; border-radius: 40px; padding: 30px; }
+        .loan-inner { 
+            background: rgba(255,255,255,0.9); border: 5px solid #a5d6a7; 
+            height: 100%; border-radius: 35px; padding: 40px; position: relative;
         }
 
-        /* License Specific (oic style) */
-        .license-border { border: 10px double var(--gov-blue); height: 100%; padding: 30px; position: relative; }
-        .garuda { width: 90px; margin: 0 auto 20px; }
-
-        /* Loan Specific (Cute style) */
-        .loan-paper { 
-            background: #e8f5e9; border-radius: 40px; border: 8px solid white;
-            background-image: radial-gradient(#a5d6a7 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        .loan-content { background: rgba(255,255,255,0.85); border-radius: 35px; height: 100%; border: 3px solid #66bb6a; padding: 40px; position: relative; }
-
-        /* Notification Toast */
-        #toast { position: fixed; top: 20px; right: -400px; transition: 0.5s; z-index: 9999; }
-        #toast.active { right: 20px; }
-
-        /* Animations */
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .float-icon { animation: float 3s ease-in-out infinite; }
-        .hidden-sys { display: none !important; }
+        /* --- [7] UI COMPONENTS --- */
+        .glass-panel { background: white; border-radius: 30px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .status-pill { @apply px-3 py-1 rounded-full text-[8px] font-black uppercase; }
+        
+        .tab-content { display: none; }
+        .active-tab { display: block; animation: fadeInUp 0.5s ease; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="toast" class="bg-white p-4 rounded-2xl shadow-2xl border-l-8 border-gov-gold flex items-center gap-4 min-w-[300px]">
-        <div class="bg-gov-gold/10 p-3 rounded-full text-gov-gold"><i data-lucide="bell-ring"></i></div>
-        <div>
-            <p class="font-black text-xs text-slate-800 uppercase">System Notification</p>
-            <p id="toast-msg" class="text-[10px] font-bold text-slate-500 italic">Processing request...</p>
-        </div>
-    </div>
-
-    <div id="login-screen" class="fixed inset-0 z-[999] flex items-center justify-center">
-        <div class="text-center w-full max-w-sm px-6">
-            <div class="float-icon mb-8">
-                <div class="w-24 h-24 bg-white rounded-3xl mx-auto flex items-center justify-center border-4 border-gov-gold shadow-2xl">
-                    <i data-lucide="shield-check" class="w-12 h-12 text-blue-900"></i>
-                </div>
+    <div id="auth-layer" class="fixed inset-0 flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center">
+            <div class="mb-8 inline-block p-6 bg-white rounded-[40px] shadow-2xl border-4 border-gov-gold">
+                <i data-lucide="lock" class="w-12 h-12 text-blue-900"></i>
             </div>
-            <h1 class="text-3xl font-black text-white tracking-widest mb-2 uppercase">Ayu Central</h1>
-            <p class="text-gov-gold font-bold text-[10px] tracking-[0.5em] mb-10">SUPREME ACCESS CONTROL</p>
+            <h1 class="text-4xl font-black text-white mb-2 uppercase tracking-tighter">Ayu Registry</h1>
+            <p class="text-gov-gold font-bold text-xs tracking-[0.5em] mb-12">SUPREME COMMAND ACCESS</p>
             
-            <div class="bg-white/5 backdrop-blur-md p-8 rounded-3xl border border-white/10">
-                <input type="password" id="passCode" class="w-full bg-black/20 border border-white/10 p-4 rounded-xl text-white text-center tracking-[1em] outline-none focus:border-gov-gold mb-6" placeholder="••••">
-                <button onclick="authLogin()" class="w-full bg-gov-gold text-black font-black p-4 rounded-xl hover:bg-white transition-all uppercase text-sm">Unlock Console</button>
+            <div class="bg-white/10 backdrop-blur-xl p-8 rounded-[35px] border border-white/20">
+                <input type="password" id="sys-pass" class="w-full bg-black/40 border-2 border-white/10 p-5 rounded-2xl text-white text-center text-2xl tracking-[1em] outline-none focus:border-gov-gold transition-all" placeholder="••••">
+                <button onclick="attemptLogin()" class="w-full mt-6 bg-gov-gold text-black font-black py-5 rounded-2xl hover:bg-white transition-all uppercase tracking-widest text-sm">Initialize System</button>
             </div>
         </div>
     </div>
 
-    <div id="main-console" class="flex min-h-screen hidden-sys bg-slate-100">
+    <div id="app-body" class="app-container">
         
-        <aside class="w-72 sidebar flex flex-col p-6 sticky top-0 h-screen z-50">
-            <div class="mb-10 flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-black text-blue-900">A</div>
-                <div class="text-white">
-                    <p class="font-black text-xs uppercase tracking-tighter">Governor Ayu</p>
-                    <p class="text-[8px] text-gov-gold font-bold italic">Supreme Registrar</p>
+        <aside class="sidebar p-8">
+            <div class="flex items-center gap-4 mb-12">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-blue-900 shadow-lg">A</div>
+                <div>
+                    <h2 class="text-white font-black text-sm uppercase tracking-tighter">Governor Ayu</h2>
+                    <p class="text-gov-gold text-[8px] font-bold uppercase tracking-widest">Master Admin</p>
                 </div>
             </div>
 
             <nav class="flex-1">
-                <div class="text-[9px] font-black text-white/20 uppercase mb-4 tracking-widest px-4">Registry Modules</div>
-                <button onclick="changeModule('license')" id="m-license" class="nav-btn nav-active"><i data-lucide="file-check" class="w-4 h-4"></i> ระบบใบอนุญาต</button>
-                <button onclick="changeModule('loan')" id="m-loan" class="nav-btn"><i data-lucide="heart-handshake" class="w-4 h-4"></i> ระบบใบยืมเงิน</button>
-                <button onclick="changeModule('db')" id="m-db" class="nav-btn"><i data-lucide="database" class="w-4 h-4"></i> คลังข้อมูลส่วนกลาง</button>
+                <p class="text-[9px] font-black text-white/20 uppercase mb-4 ml-4">Registry Modules</p>
+                <button onclick="switchModule('license')" id="nav-license" class="nav-btn nav-active"><i data-lucide="file-text"></i> ใบอนุญาตสิทธิ์</button>
+                <button onclick="switchModule('loan')" id="nav-loan" class="nav-btn"><i data-lucide="heart"></i> ใบนัดยืมเงิน</button>
+                <button onclick="switchModule('stats')" id="nav-stats" class="nav-btn"><i data-lucide="bar-chart-3"></i> วิเคราะห์ข้อมูล</button>
             </nav>
 
-            <button onclick="location.reload()" class="p-4 text-red-400 font-black text-[10px] uppercase flex items-center gap-2 hover:bg-red-500/10 rounded-xl transition">
-                <i data-lucide="power" class="w-4 h-4"></i> Shutdown System
-            </button>
+            <div class="space-y-4">
+                <button onclick="exportToPDF()" class="w-full bg-white/5 text-white font-bold py-4 rounded-2xl text-[10px] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="download-cloud" class="w-4 h-4"></i> Export Current PDF
+                </button>
+                <button onclick="location.reload()" class="w-full text-red-500 font-black text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100 transition">Logout System</button>
+            </div>
         </aside>
 
-        <main class="flex-1 p-8 h-screen overflow-y-auto">
-            
+        <main class="workspace">
             <header class="flex justify-between items-center mb-10">
                 <div>
-                    <h2 id="mod-title" class="text-2xl font-black text-slate-800 uppercase">Registry Control</h2>
-                    <p class="text-xs text-slate-400 font-bold" id="mod-desc">จัดการระบบใบอนุญาตประกอบกิจการ</p>
+                    <h1 id="page-title" class="text-3xl font-black text-slate-800 uppercase tracking-tighter">License Registry</h1>
+                    <p class="text-xs text-slate-400 font-bold" id="page-desc">ระบบออกใบอนุญาตและกำกับดูแลสิทธิ์เข้าใช้งาน</p>
                 </div>
                 <div class="flex gap-4">
-                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
-                        <span class="text-[10px] font-black text-slate-500 uppercase" id="live-clock">00:00:00</span>
+                    <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                        <span id="live-time" class="text-xs font-black text-slate-600 mono">00:00:00</span>
                     </div>
                 </div>
             </header>
 
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="grid grid-cols-12 gap-10">
                 
-                <div class="xl:col-span-5 space-y-8">
+                <div class="col-span-12 xl:col-span-5 space-y-8">
                     
-                    <div class="app-form shadow-xl">
-                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input Terminal</span>
-                            <i data-lucide="pencil-line" class="w-3 h-3 text-slate-400"></i>
-                        </div>
-                        
-                        <div id="form-license" class="form-container">
-                            <div class="form-row"><div class="form-label">ชื่อผู้ขอ</div><input type="text" id="l_name" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อจริง-นามสกุล"></div>
-                            <div class="form-row"><div class="form-label">หน่วยงาน</div><input type="text" id="l_comp" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อบริษัท/องค์กร"></div>
-                            <div class="form-row"><div class="form-label">เลขทะเบียน</div><input type="text" id="l_id" oninput="liveUpdate()" class="form-input" placeholder="๑๖/XXXXXX"></div>
-                            <div class="form-row"><div class="form-label">สถานะ</div>
-                                <select id="l_status" onchange="liveUpdate()" class="form-input appearance-none">
-                                    <option value="pending">PENDING (รอพิจารณา)</option>
-                                    <option value="approved">APPROVED (อนุมัติสิทธิ์)</option>
-                                    <option value="revoked">REVOKED (เพิกถอน)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="form-loan" class="form-container hidden-sys">
-                            <div class="form-row"><div class="form-label">ผู้ยืม (ด.ญ./น.ส./นาย)</div><input type="text" id="loan_borrower" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อผู้ยืม"></div>
-                            <div class="form-row"><div class="form-label">ผู้ให้ยืม</div><input type="text" id="loan_lender" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อผู้ให้ยืม"></div>
-                            <div class="form-row"><div class="form-label">จำนวนเงิน</div><input type="number" id="loan_amount" oninput="liveUpdate()" class="form-input" placeholder="0.00"></div>
-                            <div class="form-row"><div class="form-label">กำหนดคืน</div><input type="text" id="loan_date" oninput="liveUpdate()" class="form-input" placeholder="ว/ด/ป"></div>
-                        </div>
-
-                        <div class="p-4 bg-white">
-                            <button onclick="saveEntry()" class="w-full bg-blue-900 text-white font-black py-4 rounded-xl hover:bg-black transition-all flex items-center justify-center gap-3 shadow-lg">
-                                <i data-lucide="save" class="w-4 h-4"></i> COMMIT TO DATABASE
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="p-4 bg-slate-50 border-b flex items-center gap-2">
-                            <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Log</span>
-                        </div>
-                        <div id="log-list" class="max-h-[300px] overflow-y-auto">
-                            <div class="p-8 text-center text-slate-300 text-xs italic">No activity detected.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="xl:col-span-7 doc-container" id="preview-col">
-                    
-                    <div id="doc-license" class="paper shadow-2xl">
-                        <div class="license-border">
-                            <div id="lic-watermark" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
-                                <h1 class="text-[120px] font-black -rotate-45 border-[20px] p-10 border-blue-900 text-blue-900 uppercase">PENDING</h1>
-                            </div>
-                            
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="garuda">
-                            <div class="text-center mb-10">
-                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Office of the Supreme Registrar</p>
-                                <h2 class="text-3xl font-black text-blue-900 mt-2">ใบอนุญาต</h2>
-                                <p class="text-sm font-bold mt-1 italic">LICENSE TO OPERATE</p>
-                            </div>
-
-                            <div class="mt-20 space-y-10 text-center">
-                                <div class="space-y-2">
-                                    <p class="text-xs font-bold text-slate-400 uppercase italic">ขอมอบให้ไว้แก่หน่วยงาน</p>
-                                    <h3 id="p-lic-comp" class="text-4xl font-black text-blue-900 leading-tight">................................................</h3>
+                    <div class="glass-panel p-8">
+                        <div id="mod-license-form" class="tab-content active-tab space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">ชื่อผู้ขอสิทธิ์</label>
+                                    <input type="text" id="lic-name" oninput="renderLive()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-blue-900" placeholder="ระบุชื่อ">
                                 </div>
                                 <div class="space-y-1">
-                                    <p class="text-sm font-bold">โดยมี <span id="p-lic-name" class="underline underline-offset-8 decoration-gov-gold decoration-4 text-slate-800">................................</span> เป็นผู้รับสิทธิ์</p>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">รหัสทะเบียน</label>
+                                    <input type="text" id="lic-id" oninput="renderLive()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-blue-900" placeholder="๑๖/XXXXXX">
                                 </div>
                             </div>
-
-                            <div class="absolute bottom-24 left-10 space-y-1">
-                                <p class="text-[9px] font-black text-slate-400 uppercase">Registration ID</p>
-                                <p id="p-lic-id" class="text-xs font-bold font-mono">๑๖/XXXXXXXX</p>
-                            </div>
-
-                            <div class="absolute bottom-16 right-16 text-center">
-                                <div class="charm text-3xl opacity-80 mb-[-10px]">Ayu.</div>
-                                <p class="text-xs font-black">(นายอาคิรา สัตยารัฐ)</p>
-                                <p class="text-[9px] font-bold text-gov-gold uppercase">Supreme Registrar of Ayu</p>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-1">บริษัท / หน่วยงาน</label>
+                                <input type="text" id="lic-comp" oninput="renderLive()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-blue-900" placeholder="ระบุชื่อองค์กร">
                             </div>
                         </div>
-                    </div>
 
-                    <div id="doc-loan" class="paper loan-paper hidden-sys">
-                        <div class="loan-content mali">
-                            <div class="text-center mb-10">
-                                <span class="bg-green-600 text-white px-8 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">ใบยืมเงิน (LOAN AGREEMENT) 🌷</span>
-                                <h2 class="text-5xl font-black text-green-900 mt-6 tracking-tighter italic">ใบนัดยืมเงิน</h2>
+                        <div id="mod-loan-form" class="tab-content space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="loan-b" oninput="renderLive()" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold text-sm" placeholder="ชื่อผู้ยืม">
+                                <input type="text" id="loan-l" oninput="renderLive()" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold text-sm" placeholder="ชื่อผู้ให้ยืม">
                             </div>
-
-                            <div class="space-y-8 text-green-900 text-xl font-bold">
-                                <div class="flex justify-between border-b-2 border-dashed border-green-300 pb-2">
-                                    <span>วันที่</span>
-                                    <span id="p-loan-date" class="text-green-600 italic">........./........./.........</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <p class="text-sm text-green-500 uppercase">ชื่อผู้ยืมเงิน</p>
-                                    <p class="text-3xl border-b-4 border-white pb-2">คุณ <span id="p-loan-borrower" class="text-green-600">................................</span></p>
-                                </div>
-                                <div class="space-y-2">
-                                    <p class="text-sm text-green-500 uppercase">ชื่อผู้ให้ยืม</p>
-                                    <p class="text-3xl border-b-4 border-white pb-2">คุณ <span id="p-loan-lender" class="text-green-600">................................</span></p>
-                                </div>
-                                <div class="bg-white/80 p-6 rounded-3xl shadow-inner border border-green-200 text-center">
-                                    <p class="text-sm text-green-400 uppercase mb-2">จำนวนเงินกู้ยืมทั้งสิ้น</p>
-                                    <p class="text-6xl font-black text-red-500"><span id="p-loan-amount">0.00</span> <small class="text-xl">บาท</small></p>
-                                </div>
-                            </div>
-
-                            <div class="mt-20 flex justify-between px-10">
-                                <div class="text-center">
-                                    <div class="w-32 h-[2px] bg-green-300 mb-2"></div>
-                                    <p class="text-xs uppercase">ลายเซ็นผู้ยืม</p>
-                                </div>
-                                <div class="text-center">
-                                    <div class="w-32 h-[2px] bg-green-300 mb-2"></div>
-                                    <p class="text-xs uppercase">ลายเซ็นผู้ให้ยืม</p>
-                                </div>
-                            </div>
-
-                            <div class="absolute -bottom-10 -left-10 w-40 opacity-80"><img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bear" alt="bear"></div>
-                            <div class="absolute -top-10 -right-10 w-32 rotate-12 opacity-80"><img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bunny" alt="bunny"></div>
+                            <input type="number" id="loan-a" oninput="renderLive()" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold text-sm" placeholder="จำนวนเงิน">
+                            <input type="text" id="loan-d" oninput="renderLive()" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold text-sm" placeholder="วันที่คืน ว/ด/ป">
                         </div>
-                    </div>
 
-                    <div class="flex gap-4">
-                        <button onclick="downloadDoc()" class="bg-white px-8 py-4 rounded-full font-black text-xs uppercase shadow-xl hover:bg-slate-50 transition-all flex items-center gap-2">
-                            <i data-lucide="download-cloud" class="w-4 h-4"></i> Export Current Document (PDF)
+                        <button onclick="commitToDB()" class="w-full mt-6 bg-blue-900 text-white font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-xs tracking-widest uppercase">
+                            Commit to Database
                         </button>
+                    </div>
+
+                    <div class="glass-panel overflow-hidden">
+                        <div class="p-5 bg-slate-50 border-b flex justify-between items-center">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Registry Log & Control</span>
+                            <span id="log-count" class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-[9px] font-black">0 ITEMS</span>
+                        </div>
+                        <div id="master-db" class="max-h-[400px] overflow-y-auto">
+                            <div class="p-12 text-center text-slate-300 italic text-xs">No records found in central database.</div>
+                        </div>
                     </div>
                 </div>
 
+                <div class="col-span-12 xl:col-span-7 flex flex-col items-center">
+                    
+                    <div id="print-area" class="paper-view">
+                        <div id="view-license" class="lic-frame tab-content active-tab">
+                            <div id="lic-wm" class="watermark">PENDING</div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="w-24 mx-auto mb-8">
+                            <div class="text-center space-y-20">
+                                <div>
+                                    <h2 class="text-3xl font-black text-blue-900">ใบอนุญาต</h2>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.5em]">Digital Governance Division</p>
+                                </div>
+                                <div class="space-y-6">
+                                    <p class="text-sm font-bold text-slate-400 italic">หนังสือฉบับนี้ให้ไว้เพื่อรับรองหน่วยงาน</p>
+                                    <h3 id="p-lic-comp" class="text-4xl font-black text-blue-900 leading-tight">................................................</h3>
+                                    <p class="text-lg">ภายใต้การดูแลของ <span id="p-lic-name" class="font-bold border-b-4 border-gov-gold">........................</span></p>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-24 left-10 space-y-1">
+                                <p id="p-lic-id" class="text-xs font-bold text-slate-500">REF: ๑๖/XXXXXX</p>
+                                <p class="text-[9px] font-bold text-slate-300">ISSUED DATE: 07/02/2026</p>
+                            </div>
+                            <div class="absolute bottom-16 right-16 text-center">
+                                <div class="charm text-3xl text-blue-900 mb-[-5px]">Ayu.</div>
+                                <p class="text-xs font-black">(น.ส อายู มินาโมมะ)</p>
+                                <p class="text-[9px] font-bold text-gov-gold uppercase">Supreme Registrar</p>
+                            </div>
+                        </div>
+
+                        <div id="view-loan" class="loan-bg tab-content h-full">
+                            <div class="loan-inner mali">
+                                <div id="loan-wm" class="watermark"></div>
+                                <div class="text-center mb-12">
+                                    <span class="bg-green-600 text-white px-8 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">ใบนัดยืมเงิน 🌷</span>
+                                    <h2 class="text-5xl font-black text-green-900 mt-8 italic">Loan Contract</h2>
+                                </div>
+                                <div class="space-y-8 text-xl text-green-800">
+                                    <p>ข้าพเจ้า <span id="pl-b" class="font-bold border-b-2 border-green-300 px-4">................</span> ตกลงยืมเงิน</p>
+                                    <p>จากคุณ <span id="pl-l" class="font-bold border-b-2 border-green-300 px-4">................</span></p>
+                                    <div class="bg-white/80 p-8 rounded-[40px] text-center border-2 border-dashed border-green-300">
+                                        <p class="text-sm uppercase font-bold text-green-400 mb-2">ยอดเงินรวมทั้งสิ้น</p>
+                                        <p class="text-7xl font-black text-red-500"><span id="pl-a">0</span> <small class="text-2xl">บาท</small></p>
+                                    </div>
+                                    <p class="text-center italic">จะดำเนินการคืนเงินภายในวันที่ <span id="pl-d" class="font-bold text-green-600">................</span></p>
+                                </div>
+                                <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bear" class="absolute bottom-4 right-4 w-32 opacity-40">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </main>
     </div>
 
+    <div id="toast" class="fixed top-6 right-[-400px] bg-white p-5 rounded-3xl shadow-2xl border-l-8 border-gov-gold transition-all duration-500 z-[2000] flex items-center gap-4 min-w-[320px]">
+        <div id="toast-icon" class="bg-gov-gold/10 p-3 rounded-full text-gov-gold">
+            <i data-lucide="bell"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase">System Notification</p>
+            <p id="toast-msg" class="text-xs font-bold text-slate-700">Action processed successfully.</p>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
-        let db = [];
-        let currentModule = 'license';
+        let database = [];
+        let currentMod = 'license';
 
         // 1. Clock
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toLocaleTimeString('th-TH');
+            document.getElementById('live-time').innerText = new Date().toLocaleTimeString('th-TH');
         }, 1000);
 
-        // 2. Auth System
-        function authLogin() {
-            const pass = document.getElementById('passCode').value;
+        // 2. Authentication
+        function attemptLogin() {
+            const pass = document.getElementById('sys-pass').value;
             if(pass === '1234') {
-                document.getElementById('login-screen').style.opacity = '0';
-                document.getElementById('login-screen').style.pointerEvents = 'none';
-                setTimeout(() => {
-                    document.getElementById('login-screen').classList.add('hidden-sys');
-                    document.getElementById('main-console').classList.remove('hidden-sys');
-                    showToast('Welcome back, Governor Ayu.');
-                }, 1000);
+                document.getElementById('auth-layer').style.transform = 'translateY(-100%)';
+                document.getElementById('app-body').style.opacity = '1';
+                showToast('Authentication Success. System Ready.', 'check-circle');
             } else {
-                showToast('ACCESS DENIED: Incorrect Passcode');
-                document.getElementById('passCode').value = '';
+                showToast('Access Denied: Invalid Passcode', 'shield-alert');
+                document.getElementById('sys-pass').value = '';
             }
         }
 
         // 3. Module Switcher
-        function changeModule(mod) {
-            currentModule = mod;
+        function switchModule(mod) {
+            currentMod = mod;
+            // Nav UI
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById(`m-${mod}`).classList.add('nav-active');
+            document.getElementById(`nav-${mod}`).classList.add('nav-active');
 
-            const title = document.getElementById('mod-title');
-            const desc = document.getElementById('mod-desc');
+            // Page Content
+            const titles = { license: 'License Registry', loan: 'Loan Agreement', stats: 'Data Analytics' };
+            const descs = { license: 'ระบบออกใบอนุญาตและกำกับดูแลสิทธิ์', loan: 'ระบบสัญญาเงินกู้และใบนัดจ่าย', stats: 'สรุปภาพรวมข้อมูลในคลังระบบ' };
+            document.getElementById('page-title').innerText = titles[mod];
+            document.getElementById('page-desc').innerText = descs[mod];
 
-            // Toggle Forms
-            document.getElementById('form-license').classList.toggle('hidden-sys', mod !== 'license');
-            document.getElementById('form-loan').classList.toggle('hidden-sys', mod !== 'loan');
-            
-            // Toggle Previews
-            document.getElementById('doc-license').classList.toggle('hidden-sys', mod !== 'license');
-            document.getElementById('doc-loan').classList.toggle('hidden-sys', mod !== 'loan');
+            // Tab Visibility
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
+            document.getElementById(`mod-${mod}-form`)?.classList.add('active-tab');
+            document.getElementById(`view-${mod}`)?.classList.add('active-tab');
 
-            if(mod === 'license') {
-                title.innerText = "License Control";
-                desc.innerText = "จัดการระบบใบอนุญาตประกอบกิจการ";
-            } else if(mod === 'loan') {
-                title.innerText = "Loan Agreement";
-                desc.innerText = "จัดการระบบการกู้ยืมเงินและใบนัดจ่าย";
-            } else {
-                title.innerText = "Central Database";
-                desc.innerText = "คลังข้อมูลประวัติการทำรายการทั้งหมด";
+            renderLive();
+        }
+
+        // 4. Live Render
+        function renderLive() {
+            if(currentMod === 'license') {
+                document.getElementById('p-lic-name').innerText = document.getElementById('lic-name').value || '........................';
+                document.getElementById('p-lic-comp').innerText = document.getElementById('lic-comp').value || '................................................';
+                document.getElementById('p-lic-id').innerText = 'REF: ' + (document.getElementById('lic-id').value || '๑๖/XXXXXX');
+                document.getElementById('lic-wm').innerText = 'PENDING';
+                document.getElementById('lic-wm').className = 'watermark';
+            } else if(currentMod === 'loan') {
+                document.getElementById('pl-b').innerText = document.getElementById('loan-b').value || '................';
+                document.getElementById('pl-l').innerText = document.getElementById('loan-l').value || '................';
+                document.getElementById('pl-a').innerText = Number(document.getElementById('loan-a').value).toLocaleString();
+                document.getElementById('pl-d').innerText = document.getElementById('loan-d').value || '................';
+                document.getElementById('loan-wm').innerText = '';
             }
+        }
+
+        // 5. Database Commit
+        function commitToDB() {
+            const entry = {
+                id: Date.now(),
+                type: currentMod,
+                title: currentMod === 'license' ? document.getElementById('lic-comp').value : `Loan: ${document.getElementById('loan-b').value}`,
+                owner: currentMod === 'license' ? document.getElementById('lic-name').value : document.getElementById('loan-l').value,
+                status: 'ACTIVE',
+                time: new Date().toLocaleTimeString()
+            };
+
+            if(!entry.owner) return showToast('Error: Missing required fields', 'alert-circle');
+
+            database.unshift(entry);
+            renderDB();
+            showToast('Data committed to Master Database', 'database');
+        }
+
+        // 6. DB Rendering & Revoke System
+        function renderDB() {
+            const list = document.getElementById('master-db');
+            document.getElementById('log-count').innerText = `${database.length} ITEMS`;
             
-            liveUpdate();
+            list.innerHTML = database.map(i => `
+                <div class="p-4 border-b flex justify-between items-center transition hover:bg-slate-50 ${i.status === 'REVOKED' ? 'bg-red-50' : ''}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center ${i.type === 'license' ? 'bg-blue-100 text-blue-900' : 'bg-green-100 text-green-900'}">
+                            <i data-lucide="${i.type === 'license' ? 'file-text' : 'heart'}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-black ${i.status === 'REVOKED' ? 'text-red-600 line-through' : 'text-slate-800'} uppercase">${i.title}</p>
+                            <p class="text-[8px] font-bold text-slate-400">${i.owner} • ${i.time} [${i.status}]</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        ${i.status !== 'REVOKED' ? `
+                            <button onclick="revokeItem(${i.id})" class="p-2 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-600 hover:text-white transition">
+                                <i data-lucide="shield-off" class="w-3 h-3"></i>
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteItem(${i.id})" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
             lucide.createIcons();
         }
 
-        // 4. Live Update
-        function liveUpdate() {
-            if(currentModule === 'license') {
-                const name = document.getElementById('l_name').value || '................................';
-                const comp = document.getElementById('l_comp').value || '................................................';
-                const id = document.getElementById('l_id').value || '๑๖/XXXXXXXX';
-                const status = document.getElementById('l_status').value;
-
-                document.getElementById('p-lic-name').innerText = name;
-                document.getElementById('p-lic-comp').innerText = comp;
-                document.getElementById('p-lic-id').innerText = id;
-
-                const wm = document.getElementById('lic-watermark');
-                wm.innerHTML = `<h1 class="text-[120px] font-black -rotate-45 border-[20px] p-10 border-blue-900 text-blue-900 uppercase">${status}</h1>`;
-                wm.style.opacity = status === 'approved' ? '0.02' : '0.05';
-            } 
-            else if(currentModule === 'loan') {
-                document.getElementById('p-loan-borrower').innerText = document.getElementById('loan_borrower').value || '................................';
-                document.getElementById('p-loan-lender').innerText = document.getElementById('loan_lender').value || '................................';
-                document.getElementById('p-loan-amount').innerText = Number(document.getElementById('loan_amount').value).toLocaleString();
-                document.getElementById('p-loan-date').innerText = document.getElementById('loan_date').value || '........./........./.........';
+        function revokeItem(id) {
+            const item = database.find(i => i.id === id);
+            if(confirm(`ยืนยันการ "เพิกถอนสิทธิ์" ของ ${item.owner}?`)) {
+                item.status = 'REVOKED';
+                renderDB();
+                // Update Preview Watermark
+                const wm = item.type === 'license' ? document.getElementById('lic-wm') : document.getElementById('loan-wm');
+                wm.innerText = 'REVOKED';
+                wm.className = 'watermark wm-revoked';
+                showToast('Registry Status: REVOKED', 'shield-alert');
             }
         }
 
-        // 5. Database Save
-        function saveEntry() {
-            let data = {};
-            if(currentModule === 'license') {
-                data = {
-                    type: 'LICENSE',
-                    title: document.getElementById('l_comp').value,
-                    owner: document.getElementById('l_name').value,
-                    status: document.getElementById('l_status').value,
-                    time: new Date().toLocaleTimeString()
-                };
-            } else {
-                data = {
-                    type: 'LOAN',
-                    title: `Loan: ${document.getElementById('loan_borrower').value}`,
-                    owner: document.getElementById('loan_lender').value,
-                    status: 'active',
-                    time: new Date().toLocaleTimeString()
-                };
+        function deleteItem(id) {
+            if(confirm('Confirm permanent deletion?')) {
+                database = database.filter(i => i.id !== id);
+                renderDB();
+                showToast('Data removed from system', 'trash-2');
             }
-
-            if(!data.owner) return showToast('Error: Please fill in the data');
-
-            db.unshift(data);
-            updateLogs();
-            showToast(`Data committed: ${data.title}`);
         }
 
-        function updateLogs() {
-            const list = document.getElementById('log-list');
-            list.innerHTML = db.map(i => `
-                <div class="p-4 border-b border-slate-50 flex justify-between items-center hover:bg-slate-50 transition">
-                    <div>
-                        <p class="text-[10px] font-black text-blue-900 uppercase">${i.title}</p>
-                        <p class="text-[8px] text-slate-400 font-bold">${i.owner} | ${i.time}</p>
-                    </div>
-                    <span class="text-[7px] font-black px-2 py-0.5 rounded-full ${i.status === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'} uppercase">
-                        ${i.status}
-                    </span>
-                </div>
-            `).join('');
-        }
-
-        // 6. Toast System
-        function showToast(msg) {
+        // 7. Utilities
+        function showToast(msg, icon) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = msg;
-            toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), 3000);
+            document.getElementById('toast-icon').innerHTML = `<i data-lucide="${icon}"></i>`;
+            lucide.createIcons();
+            toast.style.right = '24px';
+            setTimeout(() => toast.style.right = '-400px', 3000);
         }
 
-        // 7. PDF Export
-        function downloadDoc() {
-            const element = currentModule === 'license' ? document.getElementById('doc-license') : document.getElementById('doc-loan');
-            const filename = currentModule === 'license' ? 'Official-License.pdf' : 'Loan-Agreement.pdf';
-            
-            showToast('Generating PDF... Please wait.');
-            
+        function exportToPDF() {
+            const element = document.getElementById('print-area');
+            showToast('Generating HD PDF...', 'loader');
             html2pdf().set({
                 margin: 0,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
+                filename: `Ayu-Console-Export-${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 3, useCORS: true },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             }).from(element).save();
