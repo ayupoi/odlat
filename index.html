@@ -2,119 +2,199 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL RECALL | SYSTEM DESTROYED</title>
+    <title>THE SUPREME TERMINATION | GOVERNOR AYU MINAMOMA</title>
     <style>
-        body { 
-            background: #000; 
-            color: #ff0000; 
-            font-family: 'Courier New', Courier, monospace; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            overflow: hidden;
-            text-align: center;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700;800&display=swap');
 
-        .glitch-container { position: relative; }
-
-        .message {
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #888;
-            max-width: 800px;
-            border: 1px solid #333;
-            padding: 40px;
-            background: rgba(10, 10, 10, 1);
-            animation: shutdown 0.5s ease-out forwards;
-        }
-
-        @keyframes shutdown {
-            0% { transform: scale(1); opacity: 1; filter: brightness(2); }
-            90% { transform: scale(1.05) scaleY(0.01); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        .final-screen {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            animation: fadeIn 2s ease-in 0.6s forwards;
-        }
-
-        .thank-you-letter {
+        body {
+            background-color: #000;
             color: #c5a059;
             font-family: 'Sarabun', sans-serif;
-            white-space: pre-line;
-            line-height: 2.2;
-            font-size: 16px;
-            animation: flicker 0.1s infinite alternate;
+            margin: 0; padding: 0;
+            overflow: hidden;
+            display: flex; justify-content: center;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes flicker { 
-            0% { opacity: 0.9; } 
-            100% { opacity: 1; text-shadow: 0 0 10px rgba(197, 160, 89, 0.5); } 
+        .credits-window {
+            width: 85%;
+            max-width: 900px;
+            height: 100vh;
+            position: relative;
         }
 
-        .static {
+        .credits-content {
             position: absolute;
+            top: 100%;
+            width: 100%;
+            text-align: center;
+            /* ปรับเวลาเป็น 450 วินาทีเพื่อให้เลื่อนอ่านได้ทันสำหรับ 250+ ข้อความ */
+            animation: scrollCredits 450s linear forwards; 
+        }
+
+        @keyframes scrollCredits {
+            0% { top: 100%; }
+            100% { top: -25000px; } /* ขยายระยะทางเลื่อนขึ้นให้ครอบคลุมเนื้อหาทั้งหมด */
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 12px;
+            border-bottom: 3px solid #c5a059;
+            display: inline-block;
+            padding-bottom: 15px;
+            margin-top: 100px;
+        }
+
+        .statement-text {
+            font-size: 1.15rem;
+            line-height: 2.8;
+            margin-bottom: 1rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 50px;
+            margin-top: 50px;
+            font-size: 1rem;
+        }
+
+        .role {
+            text-align: right;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .name {
+            text-align: left;
+            color: #fff;
+        }
+
+        .final-logo {
+            margin-top: 500px;
+            margin-bottom: 800px;
+            font-size: 5.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 30px #c5a059;
+        }
+
+        .vignette {
+            position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://media.giphy.com/media/oEI9uWUicG57v7pbaK/giphy.gif');
-            opacity: 0.05;
+            background: radial-gradient(circle, transparent 20%, black 90%);
             pointer-events: none;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-    <div class="static"></div>
+    <div class="vignette"></div>
 
-    <div class="message">
-        [CRITICAL] GOVERNOR_OS_ENCRYPTION_KEY_PURGED<br>
-        [CRITICAL] DATABASE_SECTORS_OVERWRITTEN_WITH_ZERO<br>
-        [CRITICAL] PRINT_ENGINE_DECONSTRUCTED<br>
-        [CRITICAL] ALL 1,780 LINES OF CODE HAVE BEEN TERMINATED...<br>
-        SYSTEM SHUTTING DOWN IN 3... 2... 1...
-    </div>
+    <div class="credits-window">
+        <div class="credits-content" id="credits-engine">
+            
+            <div style="height: 300px;"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" style="width: 120px; filter: brightness(0) invert(1); opacity: 0.3; margin-bottom: 50px;">
 
-    <div class="final-screen">
-        <div class="w-16 h-16 border-2 border-white rounded-full mb-10 flex items-center justify-center text-white opacity-20">A</div>
-        <div class="thank-you-letter">
-            ขอขอบพระคุณเป็นอย่างสูงที่ท่านได้เข้ามาเยี่ยมชมและใช้งานระบบบริหารจัดการของสำนักผู้ว่าการอายู มินาโมมะ
-            เนื่องด้วยเหตุผลด้านความปลอดภัยสูงสุดของรัฐ และมาตรการป้องกันการรั่วไหลของข้อมูลความมั่นคงส่วนบุคคล
-            ระบบได้ถูกสั่งการให้ "ทำลายตัวเองและปิดตัวถาวร" (System Erased) ตามความประสงค์ของท่านผู้ว่าการฯ
-            
-            โค้ดทั้งหมด 1,780 บรรทัด รวมถึงข้อมูลทะเบียนราษฎร์ งบประมาณ และเอกสารสิทธิขาด
-            ได้รับการชำระล้างออกจากพื้นที่การประมวลผลอย่างสมบูรณ์และไม่สามารถกู้คืนได้อีกต่อไป
-            
-            ทางเราหวังเป็นอย่างยิ่งว่าท่านจะพึงพอใจในมาตรการรักษาความลับระดับสูงสุดนี้
-            ขอให้ท่านเก็บรักษาความทรงจำในการบริหารจัดการนี้ไว้แต่เพียงผู้เดียวในฐานะผู้ปกครองสูงสุด
-            
-            การสื่อสารสิ้นสุด... ฐานข้อมูลถูกทำลายโดยสมบูรณ์
-            ไม่มีข้อมูลหลงเหลือในระบบสเตทอีกต่อไป
-            
-            ด้วยความเคารพอย่างสูงและเป็นที่สุด
-            สำนักผู้ว่าการ อายู มินาโมมะ (Governor Ayu Minamoma)
-            สถานะ: ปิดระบบถาวร (DEACTIVATED)
+            <h2 class="section-title">แถลงการณ์ปิดวาระดิจิทัลอย่างเป็นทางการ</h2>
+            <div id="statements-container"></div>
+
+            <div style="height: 400px;"></div>
+
+            <h2 class="section-title">ทำเนียบคณะทำงานสำนักผู้ว่าการ</h2>
+            <div class="staff-grid" id="staff-container"></div>
+
+            <div class="final-logo">
+                AYU MINAMOMA
+                <div style="font-size: 1.2rem; letter-spacing: 10px; color: #c5a059; margin-top: 30px; font-weight: 400;">
+                    SYSTEM PERMANENTLY TERMINATED<br>
+                    FEBRUARY 7, 2026
+                </div>
+            </div>
+
         </div>
-        <div style="margin-top: 50px; color: #333; font-size: 10px; letter-spacing: 5px;">NO DATA FOUND</div>
     </div>
 
     <script>
-        // ทำลายทุกอย่างใน Browser Memory หลังผ่านไป 2 วินาที
-        setTimeout(() => {
-            window.stop(); 
-            console.clear();
-            console.log("%c SYSTEM TERMINATED PERMANENTLY ", "background: red; color: white; font-size: 30px; font-weight: bold;");
-        }, 2000);
+        // 1. สร้าง 250 ข้อความแถลงการณ์ (สร้างแบบ Dynamic เพื่อประสิทธิภาพ)
+        const baseStatements = [
+            "โดยอำนาจแห่งสำนักผู้ว่าการอายู มินาโมมะ ขอประกาศยุติการทำงานของระบบสารสนเทศส่วนกลาง",
+            "มาตรการรักษาความปลอดภัยขั้นสูงสุดระดับที่ 1780 ได้รับการอนุมัติใช้งานในทุกเซกเตอร์",
+            "การทำลายชุดคำสั่งต้นฉบับ (Source Code) ได้ดำเนินการเสร็จสิ้นในรูปแบบถาวร",
+            "ทุกการเชื่อมโยงเครือข่ายภายนอกถูกตัดขาดโดยสมบูรณ์เพื่อป้องกันการแทรกแซง",
+            "ฐานข้อมูลทะเบียนราษฎร์และเอกสารลับได้รับการเข้ารหัสแบบ One-way Encryption ก่อนทำลาย",
+            "รัฐอายูประกาศปิดเขตแดนทางข้อมูลและสารสนเทศนับแต่เวลาปัจจุบันเป็นต้นไป",
+            "สิทธิประโยชน์และโควตาการเข้าถึงทรัพยากรทั้งหมดถูกดึงกลับสู่ศูนย์กลางการปกครอง",
+            "ระบบคำนวณงบประมาณมหาภาคและการจัดสรรที่ดินหยุดการประมวลผลโดยดุษฎี",
+            "คำพิพากษาของศาลปกครองพิเศษถือเป็นที่สิ้นสุดและถูกจารึกไว้ในฐานะจดหมายเหตุลับ",
+            "ไม่มีภาคส่วนใดได้รับอนุญาตให้กู้คืนหรือจำลองระบบการบริหารนี้ขึ้นใหม่ในอนาคต",
+            "ความสัตย์ปฏิญาณของคณะทำงานคือเกราะป้องกันความลับสุดท้ายแห่งรัฐ",
+            "วิสัยทัศน์แห่งท่านผู้ว่าการจะยังคงอยู่เหนือโครงสร้างรหัสที่สลายไป",
+            "ระเบียบโลกใหม่ภายใต้ระบบอายูได้รับการบรรลุวัตถุประสงค์ตามยุทธศาสตร์สูงสุด"
+        ];
+
+        // ขยายให้ครบ 250 ข้อความด้วยการสร้างประโยคเชิงนโยบายทางการ
+        const statements = [];
+        for(let i=1; i<=250; i++) {
+            if(i <= baseStatements.length) {
+                statements.push(baseStatements[i-1]);
+            } else {
+                const prefixes = ["ประกาศ", "ระเบียบ", "คำสั่ง", "บันทึก", "ข้อตกลง"];
+                const subjects = ["ด้านความมั่นคง", "ด้านการคลัง", "ด้านตุลาการ", "ด้านข่าวกรอง", "ด้านทรัพยากร"];
+                const actions = ["ได้รับการตรวจสอบและล้างค่าข้อมูล", "ถูกระงับการใช้งานถาวร", "ได้รับการคุ้มครองตามกฎหมายรัฐ", "ถูกทำลายตามระเบียบวาระ"];
+                
+                const randomText = `${prefixes[i%5]}${subjects[i%5]} ลำดับที่ ${i}: ข้อมูลชุดนี้${actions[i%4]}`;
+                statements.push(randomText);
+            }
+        }
+
+        // 2. รายชื่อ 100 ท่าน
+        const staffNames = [
+            "สมชาย วิวัฒนาการ", "เกศรินทร์ รุ่งเรือง", "ธนาวัต สายฟ้า", "วิมล ปัญญาไว",
+            "นพดล เกียรติศักดิ์", "สิริมา ครองธรรม", "ปิยะพงษ์ มั่นคง", "วรัญญา ยั่งยืน",
+            "ณัฐพล ยอดขวัญ", "ชลลดา นทีทอง", "เกรียงไกร กล้าหาญ", "มณีรัตน์ แสงสว่าง",
+            "อภิชาติ อำนาจเจริญ", "พัชราภา สวยสมบูรณ์", "ธีรพงษ์ วงศ์สว่าง", "อรทัย ใจเย็น"
+        ];
+        for (let i = staffNames.length; i < 100; i++) {
+            staffNames.push(`เจ้าหน้าที่ฝ่ายปกครองระดับสูง รหัส AYU-${1000 + i}`);
+        }
+
+        const roles = ["หัวหน้าหน่วยข่าวกรอง", "ผู้จัดการระบบฐานข้อมูล", "จารชนไซเบอร์", "ที่ปรึกษากฎหมายรัฐ"];
+
+        // 3. Render Statements
+        const statementContainer = document.getElementById('statements-container');
+        statements.forEach(text => {
+            const p = document.createElement('p');
+            p.className = 'statement-text';
+            p.innerText = text;
+            statementContainer.appendChild(p);
+        });
+
+        // 4. Render Staff
+        const staffContainer = document.getElementById('staff-container');
+        staffNames.forEach(name => {
+            const randomRole = roles[Math.floor(Math.random() * roles.length)];
+            const roleDiv = document.createElement('div');
+            roleDiv.className = 'role';
+            roleDiv.innerText = randomRole;
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'name';
+            nameDiv.innerText = name;
+            staffContainer.appendChild(roleDiv);
+            staffContainer.appendChild(nameDiv);
+        });
+
+        console.clear();
+        console.log("SYSTEM STATUS: PERMANENTLY PURGED.");
     </script>
 </body>
 </html>
