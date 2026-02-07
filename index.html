@@ -3,336 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPREME GOVERNOR SYSTEM | FULL RESTORATION v18.0</title>
+    <title>SUPREME GOVERNOR SYSTEM v2.5 | ENCRYPTED LIFECYCLE</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700;800&family=Mali&family=Charm&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700;800&family=Charm&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* --- [1] COMPLEX DESIGN ENGINE --- */
-        :root { 
-            --gov-primary: #001f3f; 
-            --gov-accent: #c5a059; 
-            --danger-red: #ef4444;
-            --sidebar-bg: #000814;
+        :root { --pri: #001f3f; --acc: #c5a059; --bg: #010409; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #e2e8f0; margin: 0; overflow: hidden; }
+        
+        /* Layout */
+        .os-wrapper { display: grid; grid-template-columns: 350px 1fr; height: 100vh; transition: filter 1s ease; }
+        .sidebar { background: #000c1a; border-right: 2px solid var(--acc); padding: 2rem; }
+        .workspace { background: #cbd5e1; padding: 3rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+
+        /* Security Elements */
+        #lockdown-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 2rem;
         }
 
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background: #020617; 
-            color: #f8fafc; 
-            margin: 0; 
-            height: 100vh; 
-            overflow: hidden; 
+        .warning-strip {
+            position: fixed; top: 0; left: 0; right: 0; background: #ef4444; color: white;
+            padding: 10px; text-align: center; font-weight: 800; font-size: 12px;
+            z-index: 1000; display: none; animation: blink 1s infinite;
         }
 
-        /* --- [2] LAYOUT ARCHITECTURE --- */
-        .app-shell { 
-            display: grid; 
-            grid-template-columns: 380px 1fr; 
-            height: 100vh; 
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Document Engine */
+        .paper { 
+            width: 210mm; min-height: 297mm; background: white; padding: 20mm; color: #1e293b;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.3); transform: scale(0.75); transform-origin: top center;
         }
 
-        /* SIDEBAR DESIGN */
-        .side-panel { 
-            background: var(--sidebar-bg); 
-            border-right: 2px solid rgba(197, 160, 89, 0.2); 
-            padding: 2.5rem; 
-            display: flex; 
-            flex-direction: column;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-            z-index: 100;
+        .btn-p { @apply w-full bg-acc text-black p-4 rounded-2xl font-black uppercase tracking-widest mt-4 hover:bg-white transition-all; }
+        
+        .thank-you-text {
+            font-family: 'Sarabun', sans-serif; line-height: 2; color: var(--acc);
+            max-width: 700px; white-space: pre-line; text-align: center;
         }
-
-        .main-workspace { 
-            background: #cbd5e1; 
-            padding: 3rem; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* --- [3] COMPONENT STYLING --- */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-standard {
-            width: 100%;
-            padding: 1.25rem;
-            background: #000;
-            border: 1px solid rgba(197, 160, 89, 0.3);
-            border-radius: 1.25rem;
-            color: white;
-            font-weight: 700;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .input-standard:focus { border-color: var(--gov-accent); box-shadow: 0 0 15px rgba(197, 160, 89, 0.2); }
-
-        /* --- [4] DOCUMENT (A4) STYLING --- */
-        #print-target {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            padding: 20mm;
-            color: #1e293b;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.3);
-            position: relative;
-            transform: scale(0.8);
-            transform-origin: top center;
-        }
-
-        .doc-border {
-            border: 2px solid var(--gov-primary);
-            height: 100%;
-            padding: 40px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- [5] ANIMATED WATERMARK --- */
-        .wm-system {
-            position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 9rem; font-weight: 900; opacity: 0;
-            border: 20px solid; padding: 40px; pointer-events: none;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .wm-active { opacity: 0.12 !important; color: var(--danger-red); border-color: var(--danger-red); transform: translate(-50%, -50%) rotate(-45deg) scale(1.1); }
-
-        /* BUTTONS */
-        .btn-action {
-            width: 100%;
-            padding: 1.5rem;
-            border-radius: 1.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.4s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .btn-save { background: var(--gov-accent); color: #000; margin-bottom: 1rem; }
-        .btn-print { background: #fff; color: #000; }
-        .btn-save:hover, .btn-print:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: var(--gov-accent); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
-        
-        <aside class="side-panel">
-            <div class="flex items-center gap-4 mb-12">
-                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary font-black text-2xl shadow-lg shadow-gov-accent/20 text-black">A</div>
-                <div>
-                    <h2 class="text-white font-black text-lg leading-tight uppercase">Ayu Minamoma</h2>
-                    <p class="text-gov-accent text-[9px] font-bold tracking-[0.3em] uppercase">Supreme Governor</p>
-                </div>
+    <div id="warning-bar" class="warning-strip uppercase tracking-[5px]">
+        Security Alert: Unauthorized access duration limit approaching. System will lockdown shortly.
+    </div>
+
+    <div id="lockdown-screen">
+        <div class="w-24 h-24 bg-white rounded-3xl mb-8 flex items-center justify-center text-4xl font-black text-black">A</div>
+        <h1 class="text-4xl font-black text-white mb-6 tracking-tighter uppercase">ระบบถูกปิดถาวร / SYSTEM PERMANENTLY CLOSED</h1>
+        <div class="thank-you-text" id="final-message">
+            </div>
+        <div class="mt-12 mono text-[10px] text-slate-600">ID: AYU-SEC-LOCK-TERMINATED-2026</div>
+    </div>
+
+    <div id="main-ui" class="os-wrapper">
+        <aside class="sidebar">
+            <div class="mb-10">
+                <h1 class="text-2xl font-black text-white">Governor Ayu OS</h1>
+                <p class="text-acc text-[9px] font-bold tracking-[4px]">Secure Registry v3.0</p>
+            </div>
+            
+            <div class="space-y-4">
+                <input type="text" id="in-name" oninput="sync()" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none" placeholder="ชื่อผู้ได้รับสิทธิ์">
+                <input type="text" id="in-org" oninput="sync()" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none" placeholder="หน่วยงาน">
+                <button onclick="exportDoc()" class="btn-p"><i data-lucide="printer" class="inline w-4 mr-2"></i> Print Document</button>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-2">
-                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-6">Identity Registry</p>
-                
-                <div class="space-y-6">
-                    <div>
-                        <label class="text-[11px] font-bold text-slate-400 ml-2 mb-2 block italic">ชื่อ-นามสกุล ผู้ได้รับสิทธิ์</label>
-                        <input type="text" id="in-name" oninput="updateDocument()" class="input-standard" placeholder="...">
-                    </div>
-
-                    <div>
-                        <label class="text-[11px] font-bold text-slate-400 ml-2 mb-2 block italic">สังกัด / องค์กร</label>
-                        <input type="text" id="in-org" oninput="updateDocument()" class="input-standard" placeholder="...">
-                    </div>
-
-                    <div>
-                        <label class="text-[11px] font-bold text-slate-400 ml-2 mb-2 block italic">สถานะปัจจุบัน</label>
-                        <select id="in-status" onchange="updateDocument()" class="input-standard">
-                            <option value="ACTIVE">อนุมัติ (ACTIVE)</option>
-                            <option value="REVOKED">เพิกถอน (REVOKED)</option>
-                            <option value="PENDING">รอตรวจสอบ (PENDING)</option>
-                        </select>
-                    </div>
-
-                    <div class="pt-6">
-                        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-6">Database Action</p>
-                        <button onclick="commitToSystem()" class="btn-action btn-save">
-                            <i data-lucide="database"></i> COMMIT DATA
-                        </button>
-                        <button onclick="printOfficialPDF()" class="btn-action btn-print">
-                            <i data-lucide="printer"></i> PRINT PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-8 bg-white/5 p-5 rounded-[2rem] border border-white/10">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-[9px] font-black text-gov-accent uppercase">History Logs</span>
-                    <span id="log-count" class="text-[9px] font-black text-white/40 italic">0 records</span>
-                </div>
-                <div id="mini-logs" class="space-y-3 max-h-[150px] overflow-y-auto text-[10px]">
-                    <p class="text-slate-600 text-center py-4">Waiting for input...</p>
-                </div>
+            <div class="mt-20 p-4 bg-white/5 rounded-2xl border border-white/5 text-[10px]">
+                <p class="text-slate-500 italic">Access Time Remaining: <span id="timer-display" class="text-acc font-bold">00:00</span></p>
             </div>
         </aside>
 
-        <main class="main-workspace">
-            
-            <header class="w-full flex justify-between items-center mb-10 px-20">
-                <h1 class="text-4xl font-black text-slate-800 tracking-tighter uppercase">Official Registry Preview</h1>
-                <div class="bg-white px-8 py-3 rounded-full shadow-sm text-slate-500 font-bold text-xs">
-                    SYSTEM STATUS: <span class="text-emerald-500 animate-pulse">ENCRYPTED</span>
-                </div>
-            </header>
-
-            <div id="print-target">
-                <div class="doc-border">
-                    <div id="watermark" class="wm-system">REVOKED</div>
-
-                    <div class="text-center mb-16">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="w-24 mx-auto mb-8">
-                        <h2 class="text-3xl font-bold text-blue-950 mb-2">ใบอนุญาตและคำสั่งผู้ว่าการสูงสุด</h2>
-                        <p id="doc-id" class="text-xs font-bold text-slate-400 tracking-[0.6em] uppercase">REG-ID: AYU-16-99000-00</p>
-                    </div>
-
-                    <div class="px-10 space-y-8 text-[17px] text-slate-800 leading-[2.2] text-justify">
-                        <p>
-                            หนังสือฉบับนี้มีไว้เพื่อแสดงความจำนงค์และรับรองว่า 
-                            <b><span id="out-name" class="text-xl text-blue-900 border-b-2 border-slate-200 px-4">................................</span></b>
-                            ผู้ดำรงตำแหน่งและสังกัดในหน่วยงาน 
-                            <b><span id="out-org" class="text-xl text-blue-900 border-b-2 border-slate-200 px-4">................................</span></b>
-                            ได้รับความยินยอมโดยชอบด้วยระเบียบการปกครองส่วนกลางให้ดำเนินการภายใต้สิทธิประโยชน์ระดับสูงสุด
-                        </p>
-
-                        <p>
-                            โดยอาศัยอำนาจตามบทบัญญัติแห่งสำนักผู้ว่าการอายู มินาโมมะ (Governor Ayu Minamoma) ให้หน่วยงานและบุคคลดังกล่าวข้างต้น มีสิทธิ์ในการบริหารทรัพยากร และเข้าถึงข้อมูลชุดความมั่นคงตามที่ได้รับมอบหมาย โดยจักต้องรักษาความสัตย์และความลับของทางราชการอย่างเคร่งครัดที่สุด
-                        </p>
-
-                        <p>
-                            หากปรากฏในภายหลังว่ามีการละเมิดข้อตกลง หรือกระทำการใดอันส่งผลกระทบต่อภาพลักษณ์และเสถียรภาพของระบบ ทางสำนักผู้ว่าการขอสงวนสิทธิ์ในการระงับสิทธิ์ขาดตามคำสั่ง <b>"เพิกถอน"</b> ในทันทีโดยมิต้องแจ้งให้ทราบล่วงหน้า
-                        </p>
-
-                        <p>ให้เอกสารนี้มีผลบังคับใช้นับแต่บัดนี้เป็นต้นไป</p>
-                    </div>
-
-                    <div class="mt-auto flex justify-end pr-10 pb-10 text-center">
-                        <div>
-                            <div class="charm text-6xl text-blue-900 mb-[-10px]">Ayu.</div>
-                            <div class="w-56 h-[1px] bg-slate-400 mx-auto my-3"></div>
-                            <p class="font-bold text-lg">(น.ส. อายู มินาโมมะ)</p>
-                            <p class="text-[10px] font-black text-gov-accent tracking-[0.4em] uppercase">Supreme Governor of Ayu Realm</p>
-                        </div>
-                    </div>
-
-                    <div class="absolute bottom-10 left-10 text-[9px] font-bold text-slate-300 font-mono italic">
-                        SECURED BY SHA-256 | TIMESTAMP: <span id="time-stamp">07/02/2026</span>
+        <main class="workspace">
+            <div id="print-area" class="paper">
+                <div class="border-4 border-slate-900 h-full p-12 relative flex flex-direction column">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="w-24 mx-auto mb-10">
+                    <h1 class="text-3xl font-black text-center mb-10">ใบอนุญาตปกครองพิเศษ</h1>
+                    <div class="text-lg leading-loose space-y-8">
+                        <p>ขอรับรองว่า <span id="out-name" class="font-bold border-b-2 border-slate-300 px-4 text-blue-900">..........</span></p>
+                        <p>สังกัดหน่วยงาน <span id="out-org" class="font-bold border-b-2 border-slate-300 px-4 text-blue-900">..........</span></p>
+                        <p>ได้รับการพิจารณาอนุมัติให้มีอำนาจบริหารจัดการทรัพยากรส่วนบุคคล ภายใต้ระเบียบวาระการปกครองของสำนักผู้ว่าการอายู มินาโมมะ (Ayu Minamoma) อย่างเป็นทางการ</p>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
     <script>
         lucide.createIcons();
-        let database = [];
 
-        // 1. LIVE SYNC ENGINE
-        function updateDocument() {
-            const name = document.getElementById('in-name').value;
-            const org = document.getElementById('in-org').value;
-            const status = document.getElementById('in-status').value;
-            const wm = document.getElementById('watermark');
+        // CONFIGURATION (ท่านสามารถปรับแก้เวลาได้ตรงนี้)
+        const VIEW_LIMIT_MINUTES = 3; // กำหนดเวลาเข้าชม (เช่น 3 นาที)
+        const WARNING_BEFORE_SECONDS = 30; // เตือนก่อนหมดเวลากี่วินาที
+        
+        let secondsLeft = VIEW_LIMIT_MINUTES * 60;
 
-            document.getElementById('out-name').innerText = name || '................................';
-            document.getElementById('out-org').innerText = org || '................................';
+        // FINAL MESSAGE (ข้อความยาว 10 กว่าบรรทัดตามที่ท่านระบุ)
+        const thankYouMessage = `ขอขอบพระคุณเป็นอย่างสูงที่ท่านได้เข้ามาเยี่ยมชมและใช้งานระบบบริหารจัดการของสำนักผู้ว่าการอายู มินาโมมะ
+            เนื่องด้วยเหตุผลด้านความปลอดภัยสูงสุดของรัฐ และมาตรการป้องกันการรั่วไหลของข้อมูลความมั่นคงส่วนบุคคล
+            ระบบได้ถูกตั้งโปรแกรมให้ดำเนินการ "ปิดตัวถาวร" (Permanent Lockdown) ทันทีที่ครบกำหนดเวลาการเข้าชมที่ได้รับอนุญาต
             
-            // Watermark Logic
-            if(status === 'REVOKED') {
-                wm.innerText = "REVOKED";
-                wm.classList.add('wm-active');
-            } else if(status === 'PENDING') {
-                wm.innerText = "WAITING";
-                wm.classList.add('wm-active');
-                wm.style.color = "#f59e0b";
-                wm.style.borderColor = "#f59e0b";
-            } else {
-                wm.classList.remove('wm-active');
+            ข้อมูลทั้งหมดที่ท่านได้ทำการกรอกหรือแก้ไข จะถูกล้างออกจากหน่วยความจำชั่วคราวเพื่อความปลอดภัย
+            หากท่านมีความประสงค์จะกลับเข้าใช้งานระบบอีกครั้ง โปรดติดต่อผู้ดูแลระบบเพื่อขอรับรหัสเข้าใช้งานใหม่
+            ทางเราหวังเป็นอย่างยิ่งว่าท่านจะได้รับประสบการณ์การใช้งานที่พึงพอใจและเข้าใจในมาตรการรักษาความลับของเรา
+            
+            การสื่อสารและคำสั่งทางดิจิทัลทั้งหมดจะถูกเข้ารหัสและทำลายทิ้งในลำดับถัดไป
+            ขอให้ท่านรักษาความสัตย์และความลับในข้อมูลที่ได้เห็นภายใต้พันธสัญญานักปกครอง
+            
+            ด้วยความเคารพอย่างสูง
+            สำนักผู้ว่าการ อายู มินาโมมะ (Governor Ayu Minamoma)
+            วันที่ 7 กุมภาพันธ์ 2569`;
+
+        // TIMER ENGINE
+        const timerInt = setInterval(() => {
+            secondsLeft--;
+            
+            // Update UI Timer
+            const m = Math.floor(secondsLeft / 60);
+            const s = secondsLeft % 60;
+            document.getElementById('timer-display').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+            // Show Warning
+            if(secondsLeft <= WARNING_BEFORE_SECONDS && secondsLeft > 0) {
+                document.getElementById('warning-bar').style.display = 'block';
             }
-        }
 
-        // 2. DATABASE COMMIT ENGINE
-        function commitToSystem() {
-            const name = document.getElementById('in-name').value;
-            if(!name) return alert("System Error: Missing Name Entry");
+            // Lockdown Execution
+            if(secondsLeft <= 0) {
+                clearInterval(timerInt);
+                executeLockdown();
+            }
+        }, 1000);
 
-            const entry = {
-                id: Date.now(),
-                regId: `AYU-16-${Math.floor(10000 + Math.random() * 90000)}`,
-                owner: name,
-                org: document.getElementById('in-org').value,
-                status: document.getElementById('in-status').value,
-                date: new Date().toLocaleTimeString()
-            };
-
-            database.unshift(entry);
-            document.getElementById('doc-id').innerText = `REG-ID: ${entry.regId}`;
-            renderLogs();
-        }
-
-        // 3. LOG RENDERING
-        function renderLogs() {
-            const container = document.getElementById('mini-logs');
-            document.getElementById('log-count').innerText = `${database.length} records`;
+        function executeLockdown() {
+            // ลบ UI หลักออกทันที
+            document.getElementById('main-ui').remove();
+            document.getElementById('warning-bar').remove();
             
-            container.innerHTML = database.map(i => `
-                <div class="p-3 bg-white/5 border-l-2 border-gov-accent rounded-r-xl">
-                    <p class="font-black text-gov-accent">${i.regId}</p>
-                    <p class="text-white/60">${i.owner} - ${i.status}</p>
-                </div>
-            `).join('');
-        }
-
-        // 4. PRINT ENGINE (RESTORATION COMPLETE)
-        function printOfficialPDF() {
-            const element = document.getElementById('print-target');
+            // แสดงหน้า Lockdown
+            const screen = document.getElementById('lockdown-screen');
+            screen.style.display = 'flex';
+            document.getElementById('final-message').innerText = thankYouMessage;
             
-            // ตั้งค่า PDF ให้สวยงามและเรียบร้อย
-            const config = {
-                margin:       0,
-                filename:    `GOV_AYU_OFFICIAL_${Date.now()}.pdf`,
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { 
-                    scale: 3, // ความคมชัดสูง
-                    useCORS: true,
-                    letterRendering: true 
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // เรียกใช้ Library html2pdf ที่เชื่อมไว้ที่ Header
-            html2pdf().from(element).set(config).save();
+            console.log("SYSTEM TERMINATED PERMANENTLY.");
         }
 
-        // Time Update
-        document.getElementById('time-stamp').innerText = new Date().toLocaleDateString('th-TH');
+        function sync() {
+            document.getElementById('out-name').innerText = document.getElementById('in-name').value || '..........';
+            document.getElementById('out-org').innerText = document.getElementById('in-org').value || '..........';
+        }
+
+        function exportDoc() {
+            const element = document.getElementById('print-area');
+            html2pdf().from(element).set({
+                margin: 0,
+                filename: 'Ayu_Official_Doc.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).save();
+        }
     </script>
 </body>
 </html>
