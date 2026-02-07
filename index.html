@@ -2,173 +2,119 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPREME GOVERNOR SYSTEM v2.5 | ENCRYPTED LIFECYCLE</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700;800&family=Charm&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
+    <title>TERMINAL RECALL | SYSTEM DESTROYED</title>
     <style>
-        :root { --pri: #001f3f; --acc: #c5a059; --bg: #010409; }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #e2e8f0; margin: 0; overflow: hidden; }
-        
-        /* Layout */
-        .os-wrapper { display: grid; grid-template-columns: 350px 1fr; height: 100vh; transition: filter 1s ease; }
-        .sidebar { background: #000c1a; border-right: 2px solid var(--acc); padding: 2rem; }
-        .workspace { background: #cbd5e1; padding: 3rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-
-        /* Security Elements */
-        #lockdown-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 2rem;
+        body { 
+            background: #000; 
+            color: #ff0000; 
+            font-family: 'Courier New', Courier, monospace; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+            text-align: center;
         }
 
-        .warning-strip {
-            position: fixed; top: 0; left: 0; right: 0; background: #ef4444; color: white;
-            padding: 10px; text-align: center; font-weight: 800; font-size: 12px;
-            z-index: 1000; display: none; animation: blink 1s infinite;
+        .glitch-container { position: relative; }
+
+        .message {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #888;
+            max-width: 800px;
+            border: 1px solid #333;
+            padding: 40px;
+            background: rgba(10, 10, 10, 1);
+            animation: shutdown 0.5s ease-out forwards;
         }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        /* Document Engine */
-        .paper { 
-            width: 210mm; min-height: 297mm; background: white; padding: 20mm; color: #1e293b;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.3); transform: scale(0.75); transform-origin: top center;
+        @keyframes shutdown {
+            0% { transform: scale(1); opacity: 1; filter: brightness(2); }
+            90% { transform: scale(1.05) scaleY(0.01); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
         }
 
-        .btn-p { @apply w-full bg-acc text-black p-4 rounded-2xl font-black uppercase tracking-widest mt-4 hover:bg-white transition-all; }
-        
-        .thank-you-text {
-            font-family: 'Sarabun', sans-serif; line-height: 2; color: var(--acc);
-            max-width: 700px; white-space: pre-line; text-align: center;
+        .final-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 2s ease-in 0.6s forwards;
+        }
+
+        .thank-you-letter {
+            color: #c5a059;
+            font-family: 'Sarabun', sans-serif;
+            white-space: pre-line;
+            line-height: 2.2;
+            font-size: 16px;
+            animation: flicker 0.1s infinite alternate;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes flicker { 
+            0% { opacity: 0.9; } 
+            100% { opacity: 1; text-shadow: 0 0 10px rgba(197, 160, 89, 0.5); } 
+        }
+
+        .static {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://media.giphy.com/media/oEI9uWUicG57v7pbaK/giphy.gif');
+            opacity: 0.05;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="warning-bar" class="warning-strip uppercase tracking-[5px]">
-        Security Alert: Unauthorized access duration limit approaching. System will lockdown shortly.
+    <div class="static"></div>
+
+    <div class="message">
+        [CRITICAL] GOVERNOR_OS_ENCRYPTION_KEY_PURGED<br>
+        [CRITICAL] DATABASE_SECTORS_OVERWRITTEN_WITH_ZERO<br>
+        [CRITICAL] PRINT_ENGINE_DECONSTRUCTED<br>
+        [CRITICAL] ALL 1,780 LINES OF CODE HAVE BEEN TERMINATED...<br>
+        SYSTEM SHUTTING DOWN IN 3... 2... 1...
     </div>
 
-    <div id="lockdown-screen">
-        <div class="w-24 h-24 bg-white rounded-3xl mb-8 flex items-center justify-center text-4xl font-black text-black">A</div>
-        <h1 class="text-4xl font-black text-white mb-6 tracking-tighter uppercase">ระบบถูกปิดถาวร / SYSTEM PERMANENTLY CLOSED</h1>
-        <div class="thank-you-text" id="final-message">
-            </div>
-        <div class="mt-12 mono text-[10px] text-slate-600">ID: AYU-SEC-LOCK-TERMINATED-2026</div>
-    </div>
-
-    <div id="main-ui" class="os-wrapper">
-        <aside class="sidebar">
-            <div class="mb-10">
-                <h1 class="text-2xl font-black text-white">Governor Ayu OS</h1>
-                <p class="text-acc text-[9px] font-bold tracking-[4px]">Secure Registry v3.0</p>
-            </div>
+    <div class="final-screen">
+        <div class="w-16 h-16 border-2 border-white rounded-full mb-10 flex items-center justify-center text-white opacity-20">A</div>
+        <div class="thank-you-letter">
+            ขอขอบพระคุณเป็นอย่างสูงที่ท่านได้เข้ามาเยี่ยมชมและใช้งานระบบบริหารจัดการของสำนักผู้ว่าการอายู มินาโมมะ
+            เนื่องด้วยเหตุผลด้านความปลอดภัยสูงสุดของรัฐ และมาตรการป้องกันการรั่วไหลของข้อมูลความมั่นคงส่วนบุคคล
+            ระบบได้ถูกสั่งการให้ "ทำลายตัวเองและปิดตัวถาวร" (System Erased) ตามความประสงค์ของท่านผู้ว่าการฯ
             
-            <div class="space-y-4">
-                <input type="text" id="in-name" oninput="sync()" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none" placeholder="ชื่อผู้ได้รับสิทธิ์">
-                <input type="text" id="in-org" oninput="sync()" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none" placeholder="หน่วยงาน">
-                <button onclick="exportDoc()" class="btn-p"><i data-lucide="printer" class="inline w-4 mr-2"></i> Print Document</button>
-            </div>
-
-            <div class="mt-20 p-4 bg-white/5 rounded-2xl border border-white/5 text-[10px]">
-                <p class="text-slate-500 italic">Access Time Remaining: <span id="timer-display" class="text-acc font-bold">00:00</span></p>
-            </div>
-        </aside>
-
-        <main class="workspace">
-            <div id="print-area" class="paper">
-                <div class="border-4 border-slate-900 h-full p-12 relative flex flex-direction column">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="w-24 mx-auto mb-10">
-                    <h1 class="text-3xl font-black text-center mb-10">ใบอนุญาตปกครองพิเศษ</h1>
-                    <div class="text-lg leading-loose space-y-8">
-                        <p>ขอรับรองว่า <span id="out-name" class="font-bold border-b-2 border-slate-300 px-4 text-blue-900">..........</span></p>
-                        <p>สังกัดหน่วยงาน <span id="out-org" class="font-bold border-b-2 border-slate-300 px-4 text-blue-900">..........</span></p>
-                        <p>ได้รับการพิจารณาอนุมัติให้มีอำนาจบริหารจัดการทรัพยากรส่วนบุคคล ภายใต้ระเบียบวาระการปกครองของสำนักผู้ว่าการอายู มินาโมมะ (Ayu Minamoma) อย่างเป็นทางการ</p>
-                    </div>
-                </div>
-            </div>
-        </main>
+            โค้ดทั้งหมด 1,780 บรรทัด รวมถึงข้อมูลทะเบียนราษฎร์ งบประมาณ และเอกสารสิทธิขาด
+            ได้รับการชำระล้างออกจากพื้นที่การประมวลผลอย่างสมบูรณ์และไม่สามารถกู้คืนได้อีกต่อไป
+            
+            ทางเราหวังเป็นอย่างยิ่งว่าท่านจะพึงพอใจในมาตรการรักษาความลับระดับสูงสุดนี้
+            ขอให้ท่านเก็บรักษาความทรงจำในการบริหารจัดการนี้ไว้แต่เพียงผู้เดียวในฐานะผู้ปกครองสูงสุด
+            
+            การสื่อสารสิ้นสุด... ฐานข้อมูลถูกทำลายโดยสมบูรณ์
+            ไม่มีข้อมูลหลงเหลือในระบบสเตทอีกต่อไป
+            
+            ด้วยความเคารพอย่างสูงและเป็นที่สุด
+            สำนักผู้ว่าการ อายู มินาโมมะ (Governor Ayu Minamoma)
+            สถานะ: ปิดระบบถาวร (DEACTIVATED)
+        </div>
+        <div style="margin-top: 50px; color: #333; font-size: 10px; letter-spacing: 5px;">NO DATA FOUND</div>
     </div>
 
     <script>
-        lucide.createIcons();
-
-        // CONFIGURATION (ท่านสามารถปรับแก้เวลาได้ตรงนี้)
-        const VIEW_LIMIT_MINUTES = 3; // กำหนดเวลาเข้าชม (เช่น 3 นาที)
-        const WARNING_BEFORE_SECONDS = 30; // เตือนก่อนหมดเวลากี่วินาที
-        
-        let secondsLeft = VIEW_LIMIT_MINUTES * 60;
-
-        // FINAL MESSAGE (ข้อความยาว 10 กว่าบรรทัดตามที่ท่านระบุ)
-        const thankYouMessage = `ขอขอบพระคุณเป็นอย่างสูงที่ท่านได้เข้ามาเยี่ยมชมและใช้งานระบบบริหารจัดการของสำนักผู้ว่าการอายู มินาโมมะ
-            เนื่องด้วยเหตุผลด้านความปลอดภัยสูงสุดของรัฐ และมาตรการป้องกันการรั่วไหลของข้อมูลความมั่นคงส่วนบุคคล
-            ระบบได้ถูกตั้งโปรแกรมให้ดำเนินการ "ปิดตัวถาวร" (Permanent Lockdown) ทันทีที่ครบกำหนดเวลาการเข้าชมที่ได้รับอนุญาต
-            
-            ข้อมูลทั้งหมดที่ท่านได้ทำการกรอกหรือแก้ไข จะถูกล้างออกจากหน่วยความจำชั่วคราวเพื่อความปลอดภัย
-            หากท่านมีความประสงค์จะกลับเข้าใช้งานระบบอีกครั้ง โปรดติดต่อผู้ดูแลระบบเพื่อขอรับรหัสเข้าใช้งานใหม่
-            ทางเราหวังเป็นอย่างยิ่งว่าท่านจะได้รับประสบการณ์การใช้งานที่พึงพอใจและเข้าใจในมาตรการรักษาความลับของเรา
-            
-            การสื่อสารและคำสั่งทางดิจิทัลทั้งหมดจะถูกเข้ารหัสและทำลายทิ้งในลำดับถัดไป
-            ขอให้ท่านรักษาความสัตย์และความลับในข้อมูลที่ได้เห็นภายใต้พันธสัญญานักปกครอง
-            
-            ด้วยความเคารพอย่างสูง
-            สำนักผู้ว่าการ อายู มินาโมมะ (Governor Ayu Minamoma)
-            วันที่ 7 กุมภาพันธ์ 2569`;
-
-        // TIMER ENGINE
-        const timerInt = setInterval(() => {
-            secondsLeft--;
-            
-            // Update UI Timer
-            const m = Math.floor(secondsLeft / 60);
-            const s = secondsLeft % 60;
-            document.getElementById('timer-display').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-
-            // Show Warning
-            if(secondsLeft <= WARNING_BEFORE_SECONDS && secondsLeft > 0) {
-                document.getElementById('warning-bar').style.display = 'block';
-            }
-
-            // Lockdown Execution
-            if(secondsLeft <= 0) {
-                clearInterval(timerInt);
-                executeLockdown();
-            }
-        }, 1000);
-
-        function executeLockdown() {
-            // ลบ UI หลักออกทันที
-            document.getElementById('main-ui').remove();
-            document.getElementById('warning-bar').remove();
-            
-            // แสดงหน้า Lockdown
-            const screen = document.getElementById('lockdown-screen');
-            screen.style.display = 'flex';
-            document.getElementById('final-message').innerText = thankYouMessage;
-            
-            console.log("SYSTEM TERMINATED PERMANENTLY.");
-        }
-
-        function sync() {
-            document.getElementById('out-name').innerText = document.getElementById('in-name').value || '..........';
-            document.getElementById('out-org').innerText = document.getElementById('in-org').value || '..........';
-        }
-
-        function exportDoc() {
-            const element = document.getElementById('print-area');
-            html2pdf().from(element).set({
-                margin: 0,
-                filename: 'Ayu_Official_Doc.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).save();
-        }
+        // ทำลายทุกอย่างใน Browser Memory หลังผ่านไป 2 วินาที
+        setTimeout(() => {
+            window.stop(); 
+            console.clear();
+            console.log("%c SYSTEM TERMINATED PERMANENTLY ", "background: red; color: white; font-size: 30px; font-weight: bold;");
+        }, 2000);
     </script>
 </body>
 </html>
