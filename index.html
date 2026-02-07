@@ -3,276 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme Command Center | Office of the Registrar</title>
+    <title>Supreme Governor Ayu Console v4.0</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Charm&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&family=Mali:wght@400;700&family=Charm&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        :root { --gov-blue: #001f3f; --gov-gold: #c5a059; --gov-cyan: #06b6d4; }
-        body { font-family: 'Sarabun', sans-serif; background: #f1f5f9; color: #1e293b; overflow-x: hidden; }
-        .sidebar { background: linear-gradient(180deg, #001f3f 0%, #000c1a 100%); border-right: 4px solid var(--gov-gold); }
-        .nav-item { @apply flex items-center gap-3 w-full p-4 rounded-lg font-bold text-xs transition-all mb-2 text-white/50 hover:bg-white/5; }
-        .nav-active { background: var(--gov-gold) !important; color: #000 !important; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); }
-        
-        /* Stats Card */
-        .stat-card { background: white; @apply p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col; }
-        
-        /* Paper Preview */
-        .paper-preview { background: white; width: 595px; height: 842px; padding: 40px; border: 1px solid #ddd; box-shadow: 0 20px 50px rgba(0,0,0,0.1); position: relative; zoom: 0.8; transform-origin: top center; }
-        
-        /* Notification */
-        #notification { position: fixed; top: 20px; right: -400px; width: 320px; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
-        #notification.show { right: 20px; }
 
-        .signature { font-family: 'Charm', cursive; font-size: 2rem; }
-        .bg-grid { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; }
+    <style>
+        :root { 
+            --gov-blue: #001f3f; 
+            --gov-gold: #c5a059; 
+            --cute-green: #a5d6a7;
+            --cute-pink: #ffc1e3;
+        }
+
+        /* Base & Scrollbar */
+        body { font-family: 'Sarabun', sans-serif; background: #0f172a; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--gov-gold); border-radius: 10px; }
+
+        /* Login Screen Animation */
+        #login-screen {
+            background: radial-gradient(circle at center, #001f3f 0%, #000 100%);
+            transition: all 1s ease-in-out;
+        }
+
+        /* Typography */
+        .mali { font-family: 'Mali', cursive; }
+        .charm { font-family: 'Charm', cursive; }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+
+        /* Sidebar & Navigation */
+        .sidebar { background: #000c1a; border-right: 3px solid var(--gov-gold); transition: width 0.3s; }
+        .nav-btn { @apply flex items-center gap-3 w-full p-4 rounded-xl font-bold text-xs transition-all mb-2 text-white/40 hover:bg-white/5; }
+        .nav-active { background: var(--gov-gold) !important; color: #000 !important; box-shadow: 0 0 20px rgba(197, 160, 89, 0.3); }
+
+        /* Form Styling (App Style) */
+        .app-form { background: #f8fafc; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
+        .form-row { display: grid; grid-template-columns: 120px 1fr; border-bottom: 1px solid #e2e8f0; background: white; }
+        .form-label { @apply p-4 text-[11px] font-black text-slate-400 uppercase bg-slate-50 border-right border-slate-100; }
+        .form-input { @apply p-4 w-full outline-none text-sm font-bold text-slate-800 bg-white focus:bg-blue-50/30; }
+
+        /* Document Previews */
+        .doc-container { 
+            perspective: 1000px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 40px; 
+            padding-bottom: 100px;
+        }
+        
+        /* A4 Paper Styles */
+        .paper { 
+            width: 595px; height: 842px; background: white; padding: 50px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3); position: relative; zoom: 0.85;
+            transform-origin: top center;
+        }
+
+        /* License Specific (oic style) */
+        .license-border { border: 10px double var(--gov-blue); height: 100%; padding: 30px; position: relative; }
+        .garuda { width: 90px; margin: 0 auto 20px; }
+
+        /* Loan Specific (Cute style) */
+        .loan-paper { 
+            background: #e8f5e9; border-radius: 40px; border: 8px solid white;
+            background-image: radial-gradient(#a5d6a7 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .loan-content { background: rgba(255,255,255,0.85); border-radius: 35px; height: 100%; border: 3px solid #66bb6a; padding: 40px; position: relative; }
+
+        /* Notification Toast */
+        #toast { position: fixed; top: 20px; right: -400px; transition: 0.5s; z-index: 9999; }
+        #toast.active { right: 20px; }
+
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .float-icon { animation: float 3s ease-in-out infinite; }
+        .hidden-sys { display: none !important; }
     </style>
 </head>
-<body class="flex min-h-screen bg-grid">
+<body>
 
-    <div id="notification" class="bg-white border-l-8 border-gov-gold p-4 shadow-2xl rounded-r-lg flex items-start gap-3">
-        <div class="bg-gov-gold/20 p-2 rounded-full"><i data-lucide="bell" class="w-5 h-5 text-gov-gold"></i></div>
+    <div id="toast" class="bg-white p-4 rounded-2xl shadow-2xl border-l-8 border-gov-gold flex items-center gap-4 min-w-[300px]">
+        <div class="bg-gov-gold/10 p-3 rounded-full text-gov-gold"><i data-lucide="bell-ring"></i></div>
         <div>
-            <p class="font-black text-xs text-blue-900 uppercase">แจ้งเตือนระบบ</p>
-            <p id="notif-msg" class="text-[10px] font-bold text-slate-500">บันทึกข้อมูลสำเร็จ</p>
+            <p class="font-black text-xs text-slate-800 uppercase">System Notification</p>
+            <p id="toast-msg" class="text-[10px] font-bold text-slate-500 italic">Processing request...</p>
         </div>
     </div>
 
-    <aside class="w-72 sidebar flex flex-col p-6 sticky top-0 h-screen z-50">
-        <div class="mb-10 text-center">
-            <div class="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center mb-4 border-2 border-gov-gold shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                <i data-lucide="cpu" class="text-blue-900 w-10 h-10"></i>
-            </div>
-            <h1 class="font-black text-xs text-white uppercase tracking-widest">Supreme Command<br><span class="text-gov-gold">Governor Ayu</span></h1>
-        </div>
-
-        <nav class="flex-1">
-            <button onclick="switchTab('request')" id="btn-request" class="nav-item nav-active">
-                <i data-lucide="file-text" class="w-4 h-4"></i> ทะเบียนรับสิทธิ์
-            </button>
-            <button onclick="switchTab('issue')" id="btn-issue" class="nav-item">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> ทะเบียนอนุมัติ
-            </button>
-            <button onclick="switchTab('revoke')" id="btn-revoke" class="nav-item">
-                <i data-lucide="alert-octagon" class="w-4 h-4"></i> ทะเบียนเพิกถอน
-            </button>
-        </nav>
-
-        <div class="pt-6 border-t border-white/10">
-            <div class="p-4 bg-white/5 rounded-lg text-center">
-                <p class="text-[8px] text-gov-gold font-bold uppercase tracking-widest mb-1">System Status</p>
-                <div class="flex items-center justify-center gap-2">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] text-white font-black uppercase">Online</span>
+    <div id="login-screen" class="fixed inset-0 z-[999] flex items-center justify-center">
+        <div class="text-center w-full max-w-sm px-6">
+            <div class="float-icon mb-8">
+                <div class="w-24 h-24 bg-white rounded-3xl mx-auto flex items-center justify-center border-4 border-gov-gold shadow-2xl">
+                    <i data-lucide="shield-check" class="w-12 h-12 text-blue-900"></i>
                 </div>
             </div>
-        </div>
-    </aside>
-
-    <main class="flex-1 p-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stat-card border-l-4 border-blue-900">
-                <p class="text-[10px] font-black text-slate-400 uppercase">คำร้องทั้งหมด</p>
-                <h2 id="stat-total" class="text-3xl font-black text-blue-900">0</h2>
-            </div>
-            <div class="stat-card border-l-4 border-emerald-500">
-                <p class="text-[10px] font-black text-slate-400 uppercase">อนุมัติแล้ว</p>
-                <h2 id="stat-issue" class="text-3xl font-black text-emerald-600">0</h2>
-            </div>
-            <div class="stat-card border-l-4 border-red-500">
-                <p class="text-[10px] font-black text-slate-400 uppercase">เพิกถอน/ระงับ</p>
-                <h2 id="stat-revoke" class="text-3xl font-black text-red-600">0</h2>
+            <h1 class="text-3xl font-black text-white tracking-widest mb-2 uppercase">Ayu Central</h1>
+            <p class="text-gov-gold font-bold text-[10px] tracking-[0.5em] mb-10">SUPREME ACCESS CONTROL</p>
+            
+            <div class="bg-white/5 backdrop-blur-md p-8 rounded-3xl border border-white/10">
+                <input type="password" id="passCode" class="w-full bg-black/20 border border-white/10 p-4 rounded-xl text-white text-center tracking-[1em] outline-none focus:border-gov-gold mb-6" placeholder="••••">
+                <button onclick="authLogin()" class="w-full bg-gov-gold text-black font-black p-4 rounded-xl hover:bg-white transition-all uppercase text-sm">Unlock Console</button>
             </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <div class="xl:col-span-5 space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 id="form-title" class="text-lg font-black text-blue-900 mb-4">ลงทะเบียนใหม่ (สท.๐๑)</h3>
-                    <div class="space-y-3">
-                        <input type="text" id="compInp" oninput="render()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-gov-gold" placeholder="ชื่อองค์กร/บริษัท">
-                        <input type="text" id="nameInp" oninput="render()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-gov-gold" placeholder="ชื่อ-นามสกุล ผู้มีอำนาจ">
-                        <div id="id-field" class="hidden">
-                            <input type="text" id="idInp" oninput="render()" class="w-full p-3 bg-blue-50 border-blue-200 border rounded-lg font-mono text-blue-900 font-bold" placeholder="รหัส: ๑๖/XXXXXX">
+    <div id="main-console" class="flex min-h-screen hidden-sys bg-slate-100">
+        
+        <aside class="w-72 sidebar flex flex-col p-6 sticky top-0 h-screen z-50">
+            <div class="mb-10 flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-black text-blue-900">A</div>
+                <div class="text-white">
+                    <p class="font-black text-xs uppercase tracking-tighter">Governor Ayu</p>
+                    <p class="text-[8px] text-gov-gold font-bold italic">Supreme Registrar</p>
+                </div>
+            </div>
+
+            <nav class="flex-1">
+                <div class="text-[9px] font-black text-white/20 uppercase mb-4 tracking-widest px-4">Registry Modules</div>
+                <button onclick="changeModule('license')" id="m-license" class="nav-btn nav-active"><i data-lucide="file-check" class="w-4 h-4"></i> ระบบใบอนุญาต</button>
+                <button onclick="changeModule('loan')" id="m-loan" class="nav-btn"><i data-lucide="heart-handshake" class="w-4 h-4"></i> ระบบใบยืมเงิน</button>
+                <button onclick="changeModule('db')" id="m-db" class="nav-btn"><i data-lucide="database" class="w-4 h-4"></i> คลังข้อมูลส่วนกลาง</button>
+            </nav>
+
+            <button onclick="location.reload()" class="p-4 text-red-400 font-black text-[10px] uppercase flex items-center gap-2 hover:bg-red-500/10 rounded-xl transition">
+                <i data-lucide="power" class="w-4 h-4"></i> Shutdown System
+            </button>
+        </aside>
+
+        <main class="flex-1 p-8 h-screen overflow-y-auto">
+            
+            <header class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 id="mod-title" class="text-2xl font-black text-slate-800 uppercase">Registry Control</h2>
+                    <p class="text-xs text-slate-400 font-bold" id="mod-desc">จัดการระบบใบอนุญาตประกอบกิจการ</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
+                        <span class="text-[10px] font-black text-slate-500 uppercase" id="live-clock">00:00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                
+                <div class="xl:col-span-5 space-y-8">
+                    
+                    <div class="app-form shadow-xl">
+                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input Terminal</span>
+                            <i data-lucide="pencil-line" class="w-3 h-3 text-slate-400"></i>
                         </div>
-                        <button onclick="commitToSystem()" id="actionBtn" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black text-xs uppercase shadow-xl hover:scale-[1.02] active:scale-95 transition-all">ประมวลผลข้อมูล</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
-                    <div class="p-4 border-b bg-slate-50 flex gap-2">
-                        <div class="relative flex-1">
-                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="searchInp" oninput="updateTable()" class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none" placeholder="ค้นหาข้อมูลในคลัง...">
-                        </div>
-                        <button onclick="updateTable()" class="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-                    </div>
-                    <div class="max-h-[300px] overflow-y-auto">
-                        <table class="w-full text-left text-[10px]">
-                            <thead class="bg-slate-100 sticky top-0 font-black text-slate-500 uppercase">
-                                <tr>
-                                    <th class="p-4">ข้อมูลหน่วยงาน</th>
-                                    <th class="p-4 text-center">สถานะ</th>
-                                    <th class="p-4 text-right">คำสั่ง</th>
-                                </tr>
-                            </thead>
-                            <tbody id="db-body" class="font-bold">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="xl:col-span-7 flex flex-col items-center">
-                <div id="print-area" class="paper-preview">
-                    <div class="border-[8px] border-double border-blue-900 h-full p-12 relative flex flex-col">
-                        <div id="watermark" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.05] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-orange-600 text-orange-600">รอดำเนินการ</div>
                         
-                        <div class="text-center">
-                            <i data-lucide="landmark" class="w-16 h-16 mx-auto text-blue-900 mb-4"></i>
-                            <h2 id="doc-title" class="text-2xl font-black text-blue-900 border-b-4 border-blue-900 inline-block px-12 pb-2">ใบอนุญาตอิเล็กทรอนิกส์</h2>
-                            <p class="text-[10px] font-bold text-slate-400 mt-4 tracking-[0.4em] uppercase">Digital Licensing Division</p>
-                        </div>
-
-                        <div class="text-center mt-24 space-y-10 flex-1">
-                            <div class="space-y-4">
-                                <p class="text-sm font-bold text-slate-400 italic">หนังสือฉบับนี้ให้ไว้เพื่อรับรองความถูกต้องของ</p>
-                                <h3 id="view-comp" class="text-3xl font-black text-blue-900 tracking-tight">................................................</h3>
-                                <p class="text-sm font-bold">ภายใต้การกำกับของ <span id="view-name" class="underline decoration-gov-gold decoration-2 underline-offset-4">................................</span></p>
+                        <div id="form-license" class="form-container">
+                            <div class="form-row"><div class="form-label">ชื่อผู้ขอ</div><input type="text" id="l_name" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อจริง-นามสกุล"></div>
+                            <div class="form-row"><div class="form-label">หน่วยงาน</div><input type="text" id="l_comp" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อบริษัท/องค์กร"></div>
+                            <div class="form-row"><div class="form-label">เลขทะเบียน</div><input type="text" id="l_id" oninput="liveUpdate()" class="form-input" placeholder="๑๖/XXXXXX"></div>
+                            <div class="form-row"><div class="form-label">สถานะ</div>
+                                <select id="l_status" onchange="liveUpdate()" class="form-input appearance-none">
+                                    <option value="pending">PENDING (รอพิจารณา)</option>
+                                    <option value="approved">APPROVED (อนุมัติสิทธิ์)</option>
+                                    <option value="revoked">REVOKED (เพิกถอน)</option>
+                                </select>
                             </div>
-                            <p class="text-[11px] leading-relaxed text-slate-500 max-w-sm mx-auto">
-                                โดยมีสิทธิในการเข้าถึงทรัพยากรส่วนกลางของสำนักงานฯ ครบถ้วนตามกฎหมาย สทส.๒๕๖๙ มีผลผูกพันตามภาระหน้าที่ที่ระบุไว้ในใบคำร้องทุกประการ
-                            </p>
                         </div>
 
-                        <div class="flex justify-between items-end border-t border-slate-100 pt-8">
-                            <div class="text-[9px] font-black text-slate-400 uppercase space-y-1">
-                                <p id="view-ref">ID: รอดำเนินการ</p>
-                                <p>Date: ๐๕ กุมภาพันธ์ ๒๕๖๙</p>
-                                <div class="flex gap-1 mt-2">
-                                    <div class="w-12 h-1 bg-blue-900"></div>
-                                    <div class="w-4 h-1 bg-gov-gold"></div>
+                        <div id="form-loan" class="form-container hidden-sys">
+                            <div class="form-row"><div class="form-label">ผู้ยืม (ด.ญ./น.ส./นาย)</div><input type="text" id="loan_borrower" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อผู้ยืม"></div>
+                            <div class="form-row"><div class="form-label">ผู้ให้ยืม</div><input type="text" id="loan_lender" oninput="liveUpdate()" class="form-input" placeholder="ระบุชื่อผู้ให้ยืม"></div>
+                            <div class="form-row"><div class="form-label">จำนวนเงิน</div><input type="number" id="loan_amount" oninput="liveUpdate()" class="form-input" placeholder="0.00"></div>
+                            <div class="form-row"><div class="form-label">กำหนดคืน</div><input type="text" id="loan_date" oninput="liveUpdate()" class="form-input" placeholder="ว/ด/ป"></div>
+                        </div>
+
+                        <div class="p-4 bg-white">
+                            <button onclick="saveEntry()" class="w-full bg-blue-900 text-white font-black py-4 rounded-xl hover:bg-black transition-all flex items-center justify-center gap-3 shadow-lg">
+                                <i data-lucide="save" class="w-4 h-4"></i> COMMIT TO DATABASE
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-4 bg-slate-50 border-b flex items-center gap-2">
+                            <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Log</span>
+                        </div>
+                        <div id="log-list" class="max-h-[300px] overflow-y-auto">
+                            <div class="p-8 text-center text-slate-300 text-xs italic">No activity detected.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-7 doc-container" id="preview-col">
+                    
+                    <div id="doc-license" class="paper shadow-2xl">
+                        <div class="license-border">
+                            <div id="lic-watermark" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
+                                <h1 class="text-[120px] font-black -rotate-45 border-[20px] p-10 border-blue-900 text-blue-900 uppercase">PENDING</h1>
+                            </div>
+                            
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Garuda_Embblem_of_Thailand.svg/1200px-Garuda_Embblem_of_Thailand.svg.png" class="garuda">
+                            <div class="text-center mb-10">
+                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Office of the Supreme Registrar</p>
+                                <h2 class="text-3xl font-black text-blue-900 mt-2">ใบอนุญาต</h2>
+                                <p class="text-sm font-bold mt-1 italic">LICENSE TO OPERATE</p>
+                            </div>
+
+                            <div class="mt-20 space-y-10 text-center">
+                                <div class="space-y-2">
+                                    <p class="text-xs font-bold text-slate-400 uppercase italic">ขอมอบให้ไว้แก่หน่วยงาน</p>
+                                    <h3 id="p-lic-comp" class="text-4xl font-black text-blue-900 leading-tight">................................................</h3>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-sm font-bold">โดยมี <span id="p-lic-name" class="underline underline-offset-8 decoration-gov-gold decoration-4 text-slate-800">................................</span> เป็นผู้รับสิทธิ์</p>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <div class="signature opacity-80">Ayu.</div>
-                                <p class="text-[10px] font-black">(น.ส อายู มินะโมมะ)</p>
-                                <p class="text-[8px] font-black text-gov-gold uppercase">Supreme Registrar</p>
+
+                            <div class="absolute bottom-24 left-10 space-y-1">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">Registration ID</p>
+                                <p id="p-lic-id" class="text-xs font-bold font-mono">๑๖/XXXXXXXX</p>
+                            </div>
+
+                            <div class="absolute bottom-16 right-16 text-center">
+                                <div class="charm text-3xl opacity-80 mb-[-10px]">Ayu.</div>
+                                <p class="text-xs font-black">(นายอาคิรา สัตยารัฐ)</p>
+                                <p class="text-[9px] font-bold text-gov-gold uppercase">Supreme Registrar of Ayu</p>
                             </div>
                         </div>
                     </div>
+
+                    <div id="doc-loan" class="paper loan-paper hidden-sys">
+                        <div class="loan-content mali">
+                            <div class="text-center mb-10">
+                                <span class="bg-green-600 text-white px-8 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">ใบยืมเงิน (LOAN AGREEMENT) 🌷</span>
+                                <h2 class="text-5xl font-black text-green-900 mt-6 tracking-tighter italic">ใบนัดยืมเงิน</h2>
+                            </div>
+
+                            <div class="space-y-8 text-green-900 text-xl font-bold">
+                                <div class="flex justify-between border-b-2 border-dashed border-green-300 pb-2">
+                                    <span>วันที่</span>
+                                    <span id="p-loan-date" class="text-green-600 italic">........./........./.........</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-500 uppercase">ชื่อผู้ยืมเงิน</p>
+                                    <p class="text-3xl border-b-4 border-white pb-2">คุณ <span id="p-loan-borrower" class="text-green-600">................................</span></p>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-500 uppercase">ชื่อผู้ให้ยืม</p>
+                                    <p class="text-3xl border-b-4 border-white pb-2">คุณ <span id="p-loan-lender" class="text-green-600">................................</span></p>
+                                </div>
+                                <div class="bg-white/80 p-6 rounded-3xl shadow-inner border border-green-200 text-center">
+                                    <p class="text-sm text-green-400 uppercase mb-2">จำนวนเงินกู้ยืมทั้งสิ้น</p>
+                                    <p class="text-6xl font-black text-red-500"><span id="p-loan-amount">0.00</span> <small class="text-xl">บาท</small></p>
+                                </div>
+                            </div>
+
+                            <div class="mt-20 flex justify-between px-10">
+                                <div class="text-center">
+                                    <div class="w-32 h-[2px] bg-green-300 mb-2"></div>
+                                    <p class="text-xs uppercase">ลายเซ็นผู้ยืม</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-32 h-[2px] bg-green-300 mb-2"></div>
+                                    <p class="text-xs uppercase">ลายเซ็นผู้ให้ยืม</p>
+                                </div>
+                            </div>
+
+                            <div class="absolute -bottom-10 -left-10 w-40 opacity-80"><img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bear" alt="bear"></div>
+                            <div class="absolute -top-10 -right-10 w-32 rotate-12 opacity-80"><img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bunny" alt="bunny"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="downloadDoc()" class="bg-white px-8 py-4 rounded-full font-black text-xs uppercase shadow-xl hover:bg-slate-50 transition-all flex items-center gap-2">
+                            <i data-lucide="download-cloud" class="w-4 h-4"></i> Export Current Document (PDF)
+                        </button>
+                    </div>
                 </div>
-                <button onclick="downloadPDF()" class="mt-4 bg-white border border-slate-200 px-10 py-3 rounded-full font-black text-xs uppercase flex items-center gap-2 hover:bg-slate-50 transition shadow-sm">
-                    <i data-lucide="download-cloud" class="w-4 h-4"></i> บันทึกเอกสาร (PDF)
-                </button>
+
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
         lucide.createIcons();
         let db = [];
-        let currentTab = 'request';
+        let currentModule = 'license';
 
-        function notify(msg) {
-            document.getElementById('notif-msg').innerText = msg;
-            const el = document.getElementById('notification');
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 3000);
-        }
+        // 1. Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('th-TH');
+        }, 1000);
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
-            document.getElementById(`btn-${tab}`).classList.add('nav-active');
-            document.getElementById('id-field').classList.toggle('hidden', tab === 'request');
-            document.getElementById('form-title').innerText = tab === 'request' ? 'ลงทะเบียนใหม่ (สท.๐๑)' : tab === 'issue' ? 'อนุมัติถาวร (สท.๐๒)' : 'คำสั่งเพิกถอน (สท.๐๓)';
-            render();
-        }
-
-        function render() {
-            const comp = document.getElementById('compInp').value || '................................................';
-            const name = document.getElementById('nameInp').value || '................................';
-            const id = document.getElementById('idInp').value || '๑๖/XXXXXX';
-
-            document.getElementById('view-comp').innerText = comp;
-            document.getElementById('view-name').innerText = name;
-            document.getElementById('view-ref').innerText = `ID: ${currentTab === 'request' ? 'รอดำเนินการ' : id}`;
-            
-            const wm = document.getElementById('watermark');
-            if(currentTab === 'request') { 
-                wm.innerText = 'รอดำเนินการ'; wm.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.05] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-orange-600 text-orange-600'; 
-            } else if(currentTab === 'issue') { 
-                wm.innerText = 'APPROVED'; wm.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.03] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-emerald-600 text-emerald-600';
-            } else { 
-                wm.innerText = 'เพิกถอนแล้ว'; wm.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl font-black opacity-[0.1] rotate-[-35deg] pointer-events-none uppercase border-8 p-4 border-black text-black'; 
+        // 2. Auth System
+        function authLogin() {
+            const pass = document.getElementById('passCode').value;
+            if(pass === '1234') {
+                document.getElementById('login-screen').style.opacity = '0';
+                document.getElementById('login-screen').style.pointerEvents = 'none';
+                setTimeout(() => {
+                    document.getElementById('login-screen').classList.add('hidden-sys');
+                    document.getElementById('main-console').classList.remove('hidden-sys');
+                    showToast('Welcome back, Governor Ayu.');
+                }, 1000);
+            } else {
+                showToast('ACCESS DENIED: Incorrect Passcode');
+                document.getElementById('passCode').value = '';
             }
         }
 
-        function commitToSystem() {
-            const comp = document.getElementById('compInp').value;
-            const name = document.getElementById('nameInp').value;
-            if(!comp || !name) return alert('โปรดกรอกข้อมูลให้สมบูรณ์');
+        // 3. Module Switcher
+        function changeModule(mod) {
+            currentModule = mod;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById(`m-${mod}`).classList.add('nav-active');
 
-            const id = (currentTab === 'request') ? `๑๖/${Math.floor(100000 + Math.random() * 900000)}` : document.getElementById('idInp').value;
+            const title = document.getElementById('mod-title');
+            const desc = document.getElementById('mod-desc');
+
+            // Toggle Forms
+            document.getElementById('form-license').classList.toggle('hidden-sys', mod !== 'license');
+            document.getElementById('form-loan').classList.toggle('hidden-sys', mod !== 'loan');
             
-            const entry = { id: Date.now(), regId: id, comp: comp, name: name, status: currentTab };
-            db.unshift(entry);
-            updateTable();
-            updateStats();
-            notify(`ทำรายการ ${comp} สำเร็จ`);
-        }
+            // Toggle Previews
+            document.getElementById('doc-license').classList.toggle('hidden-sys', mod !== 'license');
+            document.getElementById('doc-loan').classList.toggle('hidden-sys', mod !== 'loan');
 
-        function updateStats() {
-            document.getElementById('stat-total').innerText = db.length;
-            document.getElementById('stat-issue').innerText = db.filter(i => i.status === 'issue').length;
-            document.getElementById('stat-revoke').innerText = db.filter(i => i.status === 'revoke').length;
-        }
-
-        function updateTable() {
-            const term = document.getElementById('searchInp').value.toLowerCase();
-            const tbody = document.getElementById('db-body');
-            const filtered = db.filter(i => i.comp.toLowerCase().includes(term) || i.name.toLowerCase().includes(term));
-
-            tbody.innerHTML = filtered.map(i => `
-                <tr class="border-b hover:bg-slate-50 cursor-pointer transition">
-                    <td class="p-4" onclick="loadEntry(${i.id})">
-                        <div class="text-blue-900">${i.comp}</div>
-                        <div class="text-[8px] text-slate-400">${i.name}</div>
-                    </td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-0.5 rounded-full text-[7px] ${i.status === 'issue' ? 'bg-emerald-100 text-emerald-700' : i.status === 'revoke' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}">
-                            ${i.status.toUpperCase()}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right">
-                        <button onclick="deleteEntry(${i.id})" class="text-slate-300 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            if(mod === 'license') {
+                title.innerText = "License Control";
+                desc.innerText = "จัดการระบบใบอนุญาตประกอบกิจการ";
+            } else if(mod === 'loan') {
+                title.innerText = "Loan Agreement";
+                desc.innerText = "จัดการระบบการกู้ยืมเงินและใบนัดจ่าย";
+            } else {
+                title.innerText = "Central Database";
+                desc.innerText = "คลังข้อมูลประวัติการทำรายการทั้งหมด";
+            }
+            
+            liveUpdate();
             lucide.createIcons();
         }
 
-        function loadEntry(id) {
-            const item = db.find(i => i.id === id);
-            document.getElementById('compInp').value = item.comp;
-            document.getElementById('nameInp').value = item.name;
-            document.getElementById('idInp').value = item.regId;
-            switchTab(item.status);
+        // 4. Live Update
+        function liveUpdate() {
+            if(currentModule === 'license') {
+                const name = document.getElementById('l_name').value || '................................';
+                const comp = document.getElementById('l_comp').value || '................................................';
+                const id = document.getElementById('l_id').value || '๑๖/XXXXXXXX';
+                const status = document.getElementById('l_status').value;
+
+                document.getElementById('p-lic-name').innerText = name;
+                document.getElementById('p-lic-comp').innerText = comp;
+                document.getElementById('p-lic-id').innerText = id;
+
+                const wm = document.getElementById('lic-watermark');
+                wm.innerHTML = `<h1 class="text-[120px] font-black -rotate-45 border-[20px] p-10 border-blue-900 text-blue-900 uppercase">${status}</h1>`;
+                wm.style.opacity = status === 'approved' ? '0.02' : '0.05';
+            } 
+            else if(currentModule === 'loan') {
+                document.getElementById('p-loan-borrower').innerText = document.getElementById('loan_borrower').value || '................................';
+                document.getElementById('p-loan-lender').innerText = document.getElementById('loan_lender').value || '................................';
+                document.getElementById('p-loan-amount').innerText = Number(document.getElementById('loan_amount').value).toLocaleString();
+                document.getElementById('p-loan-date').innerText = document.getElementById('loan_date').value || '........./........./.........';
+            }
         }
 
-        function deleteEntry(id) {
-            db = db.filter(i => i.id !== id);
-            updateTable();
-            updateStats();
-            notify('ลบข้อมูลออกจากระบบแล้ว');
+        // 5. Database Save
+        function saveEntry() {
+            let data = {};
+            if(currentModule === 'license') {
+                data = {
+                    type: 'LICENSE',
+                    title: document.getElementById('l_comp').value,
+                    owner: document.getElementById('l_name').value,
+                    status: document.getElementById('l_status').value,
+                    time: new Date().toLocaleTimeString()
+                };
+            } else {
+                data = {
+                    type: 'LOAN',
+                    title: `Loan: ${document.getElementById('loan_borrower').value}`,
+                    owner: document.getElementById('loan_lender').value,
+                    status: 'active',
+                    time: new Date().toLocaleTimeString()
+                };
+            }
+
+            if(!data.owner) return showToast('Error: Please fill in the data');
+
+            db.unshift(data);
+            updateLogs();
+            showToast(`Data committed: ${data.title}`);
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('print-area');
-            html2pdf().set({ margin: 0, filename: `Supreme-Doc.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save();
+        function updateLogs() {
+            const list = document.getElementById('log-list');
+            list.innerHTML = db.map(i => `
+                <div class="p-4 border-b border-slate-50 flex justify-between items-center hover:bg-slate-50 transition">
+                    <div>
+                        <p class="text-[10px] font-black text-blue-900 uppercase">${i.title}</p>
+                        <p class="text-[8px] text-slate-400 font-bold">${i.owner} | ${i.time}</p>
+                    </div>
+                    <span class="text-[7px] font-black px-2 py-0.5 rounded-full ${i.status === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'} uppercase">
+                        ${i.status}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // 6. Toast System
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // 7. PDF Export
+        function downloadDoc() {
+            const element = currentModule === 'license' ? document.getElementById('doc-license') : document.getElementById('doc-loan');
+            const filename = currentModule === 'license' ? 'Official-License.pdf' : 'Loan-Agreement.pdf';
+            
+            showToast('Generating PDF... Please wait.');
+            
+            html2pdf().set({
+                margin: 0,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
         }
     </script>
 </body>
